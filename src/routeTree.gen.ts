@@ -10,33 +10,80 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GaleriRouteImport } from './routes/galeri'
+import { Route as PrasastiRouteImport } from './routes/prasasti'
+import { Route as EnsiklopediaIndexRouteImport } from './routes/ensiklopedia/index'
+import { Route as EnsiklopediaSlugRouteImport } from './routes/ensiklopedia/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GaleriRoute = GaleriRouteImport.update({
+  id: '/galeri',
+  path: '/galeri',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrasastiRoute = PrasastiRouteImport.update({
+  id: '/prasasti',
+  path: '/prasasti',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnsiklopediaIndexRoute = EnsiklopediaIndexRouteImport.update({
+  id: '/ensiklopedia/',
+  path: '/ensiklopedia/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnsiklopediaSlugRoute = EnsiklopediaSlugRouteImport.update({
+  id: '/ensiklopedia/$slug',
+  path: '/ensiklopedia/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/galeri': typeof GaleriRoute
+  '/prasasti': typeof PrasastiRoute
+  '/ensiklopedia/$slug': typeof EnsiklopediaSlugRoute
+  '/ensiklopedia/': typeof EnsiklopediaIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/galeri': typeof GaleriRoute
+  '/prasasti': typeof PrasastiRoute
+  '/ensiklopedia/$slug': typeof EnsiklopediaSlugRoute
+  '/ensiklopedia': typeof EnsiklopediaIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/galeri': typeof GaleriRoute
+  '/prasasti': typeof PrasastiRoute
+  '/ensiklopedia/$slug': typeof EnsiklopediaSlugRoute
+  '/ensiklopedia/': typeof EnsiklopediaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/galeri' | '/prasasti' | '/ensiklopedia/$slug' | '/ensiklopedia/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/galeri' | '/prasasti' | '/ensiklopedia/$slug' | '/ensiklopedia'
+  id:
+    | '__root__'
+    | '/'
+    | '/galeri'
+    | '/prasasti'
+    | '/ensiklopedia/$slug'
+    | '/ensiklopedia/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  GaleriRoute: typeof GaleriRoute
+  PrasastiRoute: typeof PrasastiRoute
+  EnsiklopediaSlugRoute: typeof EnsiklopediaSlugRoute
+  EnsiklopediaIndexRoute: typeof EnsiklopediaIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +95,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galeri': {
+      id: '/galeri'
+      path: '/galeri'
+      fullPath: '/galeri'
+      preLoaderRoute: typeof GaleriRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prasasti': {
+      id: '/prasasti'
+      path: '/prasasti'
+      fullPath: '/prasasti'
+      preLoaderRoute: typeof PrasastiRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ensiklopedia/': {
+      id: '/ensiklopedia/'
+      path: '/ensiklopedia'
+      fullPath: '/ensiklopedia/'
+      preLoaderRoute: typeof EnsiklopediaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ensiklopedia/$slug': {
+      id: '/ensiklopedia/$slug'
+      path: '/ensiklopedia/$slug'
+      fullPath: '/ensiklopedia/$slug'
+      preLoaderRoute: typeof EnsiklopediaSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  GaleriRoute: GaleriRoute,
+  PrasastiRoute: PrasastiRoute,
+  EnsiklopediaSlugRoute: EnsiklopediaSlugRoute,
+  EnsiklopediaIndexRoute: EnsiklopediaIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
