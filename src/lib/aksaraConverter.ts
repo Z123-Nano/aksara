@@ -26,7 +26,7 @@ export const toJavanese = (text: string): string => {
   // B. Ganti Suku Kata Dasar
   const keys = Object.keys(map).sort((a, b) => b.length - a.length);
   keys.forEach(key => {
-    processed = processed.replaceAll(key, map[key]);
+    processed = processed.replaceAll(key, map[key] ?? key);
   });
 
   // C. Handling Huruf Mati
@@ -35,7 +35,7 @@ export const toJavanese = (text: string): string => {
     const consKeys = Object.keys(consonantMap).sort((a,b) => b.length - a.length);
     consKeys.forEach(k => {
        if(temp.includes(k)){
-         temp = temp.replaceAll(k, consonantMap[k]);
+         temp = temp.replaceAll(k, consonantMap[k] ?? k);
        }
     });
     return temp;
@@ -76,10 +76,10 @@ export const toSundanese = (text: string): string => {
   
   // 1. Generate Kombinasi Konsonan + Vokal
   Object.keys(consonants).forEach(cKey => {
-    const char = consonants[cKey];
+    const char = consonants[cKey] as string;
     
     Object.keys(vowelSigns).forEach(vKey => {
-      map[cKey + vKey] = char + vowelSigns[vKey];
+      map[cKey + vKey] = char + (vowelSigns[vKey] ?? '');
     });
 
     // Konsonan + a (Default)
@@ -98,7 +98,7 @@ export const toSundanese = (text: string): string => {
   const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
 
   sortedKeys.forEach(key => {
-    processed = processed.replaceAll(key, map[key]);
+    processed = processed.replaceAll(key, map[key] ?? key);
   });
 
   return processed;
@@ -126,10 +126,10 @@ export const toMakassar = (text: string): string => {
   const map: Record<string, string> = {};
 
   Object.keys(consonants).forEach(cKey => {
-    const char = consonants[cKey];
+    const char = consonants[cKey] as string;
 
     Object.keys(vowels).forEach(vKey => {
-      map[cKey + vKey] = char + vowels[vKey];
+      map[cKey + vKey] = char + (vowels[vKey] ?? '');
     });
 
     // Konsonan + a (Default) - Lontara implisit 'a'
@@ -151,7 +151,7 @@ export const toMakassar = (text: string): string => {
   const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
 
   sortedKeys.forEach(key => {
-    processed = processed.replaceAll(key, map[key]);
+    processed = processed.replaceAll(key, map[key] ?? key);
   });
   
   return processed;
