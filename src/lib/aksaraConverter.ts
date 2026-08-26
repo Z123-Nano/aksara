@@ -1,158 +1,275 @@
-export const toJavanese = (text: string): string => {
-  // 1. Mapping Huruf Dasar (Nglegena)
-  const map: { [key: string]: string } = {
-    'dha': 'ꦝ', 'tha': 'ꦛ', 'nya': 'ꦚ', 'nga': 'ꦔ', 
-    'ha': 'ꦲ', 'na': 'ꦤ', 'ca': 'ꦕ', 'ra': 'ꦫ', 'ka': 'ꦏ',
-    'da': 'ꦢ', 'ta': 'ꦠ', 'sa': 'ꦱ', 'wa': 'ꦮ', 'la': 'ꦭ',
-    'pa': 'ꦥ', 'ja': 'ꦗ', 'ya': 'ꦪ', 'ma': 'ꦩ', 'ga': 'ꦒ', 'ba': 'ꦛ' 
-  };
+/**
+ * Latin -> Aksara transliteration (Javanese, Sundanese, Lontara/Makassar).
+ *
+ * CODEPOINT ORDER RULE (do not "fix" this the other way):
+ * In Brahmic scripts, left-side dependent vowel signs (Javanese taling U+A9BA,
+ * Sundanese panaelaeng U+1BA6, ...) are STORED AFTER the base consonant, in
+ * pronunciation order. Their visual placement to the left of the consonant is
+ * produced by the font's OpenType shaping engine, not by reordering the stored
+ * text. See Unicode Technical Note #47 "Implementing Javanese" and The Unicode
+ * Standard, South and Southeast Asian Scripts (Javanese / Sundanese blocks).
+ *
+ * Every codepoint below was checked against the Unicode Character Database
+ * (unicodedata name lookup over U+A980..U+A9DF, U+1B80..U+1BBF, U+1A00..U+1A1F).
+ */
 
-  // 2. Mapping Konsonan Mati (Pangkon)
-  const consonantMap: { [key: string]: string } = {
-    'dh': 'ꦝ꧀', 'th': 'ꦛ꧀', 'ny': 'ꦚ꧀', 'ng': 'ꦔ꧀',
-    'h': 'ꦲ꧀', 'n': 'ꦤ꧀', 'c': 'ꦕ꧀', 'r': 'ꦫ꧀', 'k': 'ꦏ꧀',
-    'd': 'ꦢ꧀', 't': 'ꦠ꧀', 's': 'ꦱ꧀', 'w': 'ꦮ꧀', 'l': 'ꦭ꧀',
-    'p': 'ꦥ꧀', 'j': 'ꦗ꧀', 'y': 'ꦪ꧀', 'm': 'ꦩ꧀', 'g': 'ꦒ꧀', 'b': 'ꦛ꧀'
-  };
+import { lookupDictionary } from "./aksaraDictionary";
 
-  let processed = text.toLowerCase();
+export { getConversionConfidence } from "./aksaraDictionary";
+export type { ScriptKey } from "./aksaraDictionary";
 
-  // A. Ganti Vokal Khusus
-  processed = processed.replace(/e/g, 'ꦺ'); // Taling
-  processed = processed.replace(/o/g, 'ꦺꦴ'); // Taling Tarung
-  processed = processed.replace(/i/g, 'ꦶ'); // Wulu
-  processed = processed.replace(/u/g, 'ꦸ'); // Suku
+/* ------------------------------------------------------------------ */
+/* Generic syllabifier                                                 */
+/* ------------------------------------------------------------------ */
 
-  // B. Ganti Suku Kata Dasar
-  const keys = Object.keys(map).sort((a, b) => b.length - a.length);
-  keys.forEach(key => {
-    processed = processed.replaceAll(key, map[key] ?? key);
-  });
+interface ScriptTable {
+  /** Latin consonant (or digraph) -> base letter with inherent /a/. */
+  consonants: Record<string, string>;
+  /** Latin vowel -> dependent vowel sign, stored AFTER the base letter. */
+  vowelSigns: Record<string, string>;
+  /** Word-initial / standalone vowel -> full independent syllable. */
+  independentVowels: Record<string, string>;
+  /** Virama-like killer appended to a consonant with no following vowel. */
+  virama: string;
+}
 
-  // C. Handling Huruf Mati
-  processed = processed.replace(/[a-z]+/g, (match) => {
-    let temp = match;
-    const consKeys = Object.keys(consonantMap).sort((a,b) => b.length - a.length);
-    consKeys.forEach(k => {
-       if(temp.includes(k)){
-         temp = temp.replaceAll(k, consonantMap[k] ?? k);
-       }
-    });
-    return temp;
-  });
+const sortedKeys = (o: Record<string, string>) =>
+  Object.keys(o).sort((a, b) => b.length - a.length);
 
-  return processed;
+function matchAt(text: string, i: number, keys: string[]): string | null {
+  for (const k of keys) if (text.startsWith(k, i)) return k;
+  return null;
+}
+
+function convertWord(word: string, t: ScriptTable): string {
+  const cKeys = sortedKeys(t.consonants);
+  const vKeys = sortedKeys(t.vowelSigns);
+  const ivKeys = sortedKeys(t.independentVowels);
+
+  let out = "";
+  let i = 0;
+  while (i < word.length) {
+    const c = matchAt(word, i, cKeys);
+    if (c) {
+      const base = t.consonants[c] as string;
+      i += c.length;
+      const v = matchAt(word, i, vKeys);
+      if (v) {
+        // [consonant, vowel-sign] — sign stored after the base letter.
+        out += base + (t.vowelSigns[v] as string);
+        i += v.length;
+      } else if (word.startsWith("a", i)) {
+        out += base; // inherent /a/, no sign
+        i += 1;
+      } else {
+        out += base + t.virama; // dead consonant
+      }
+      continue;
+    }
+
+    const iv = matchAt(word, i, ivKeys);
+    if (iv) {
+      out += t.independentVowels[iv] as string;
+      i += iv.length;
+      continue;
+    }
+
+    out += word[i];
+    i += 1;
+  }
+  return out;
+}
+
+/** Applies the converter per word while preserving all whitespace runs. */
+function transliterate(
+  text: string,
+  script: "javanese" | "sundanese" | "makassar",
+  t: ScriptTable,
+): string {
+  return text
+    .toLowerCase()
+    .split(/(\s+)/)
+    .map((chunk) => {
+      if (chunk === "" || /^\s+$/.test(chunk)) return chunk;
+      return lookupDictionary(chunk, script) ?? convertWord(chunk, t);
+    })
+    .join("");
+}
+
+/* ------------------------------------------------------------------ */
+/* Javanese (U+A980..U+A9DF)                                           */
+/* ------------------------------------------------------------------ */
+
+const JV_PANGKON = "\uA9C0"; // JAVANESE PANGKON
+const JV_TALING = "\uA9BA"; // JAVANESE VOWEL SIGN TALING
+const JV_TARUNG = "\uA9B4"; // JAVANESE VOWEL SIGN TARUNG
+const JV_HA = "\uA9B2"; // JAVANESE LETTER HA
+
+const javanese: ScriptTable = {
+  consonants: {
+    dh: "\uA99D", // DDA
+    th: "\uA99B", // TTA
+    ny: "\uA99A", // NYA
+    ng: "\uA994", // NGA
+    h: JV_HA,
+    n: "\uA9A4", // NA
+    c: "\uA995", // CA
+    r: "\uA9AB", // RA
+    k: "\uA98F", // KA
+    d: "\uA9A2", // DA
+    t: "\uA9A0", // TA
+    s: "\uA9B1", // SA
+    w: "\uA9AE", // WA
+    l: "\uA9AD", // LA
+    p: "\uA9A5", // PA
+    j: "\uA997", // JA
+    y: "\uA9AA", // YA
+    m: "\uA9A9", // MA
+    g: "\uA992", // GA
+    b: "\uA9A7", // BA
+  },
+  vowelSigns: {
+    i: "\uA9B6", // WULU
+    u: "\uA9B8", // SUKU
+    e: JV_TALING, // TALING
+    o: JV_TALING + JV_TARUNG, // TALING + TARUNG
+  },
+  // Modern Javanese orthography reserves aksara swara (U+A984 etc.) for
+  // proper nouns/loanwords; the everyday construction for a word-initial vowel
+  // is the HA carrier plus the matching vowel sign. We use the HA carrier.
+  independentVowels: {
+    a: JV_HA,
+    i: JV_HA + "\uA9B6",
+    u: JV_HA + "\uA9B8",
+    e: JV_HA + JV_TALING,
+    o: JV_HA + JV_TALING + JV_TARUNG,
+  },
+  virama: JV_PANGKON,
 };
 
-export const toSundanese = (text: string): string => {
-  // Mapping Konsonan Sunda (Unicode Baku)
-  const consonants: Record<string, string> = {
-    'ng': 'ᮍ', 'ny': 'ᮑ', 'kh': 'ᮭ', 'sy': 'ᮯ',
-    'k': 'ᮊ', 'g': 'ᮌ', 'c': 'ᮎ', 'j': 'ᮏ',
-    't': 'ᮒ', 'd': 'ᮓ', 'n': 'ᮔ', 'p': 'ᮕ', 
-    'b': 'ᮘ', 'm': 'ᮙ', 'y': 'ᮚ', 'r': 'ᮛ',
-    'l': 'ᮜ', 'w': 'ᮝ', 's': 'ᮞ', 'h': 'ᮠ',
-    'f': 'ᮖ', 'v': 'ᮗ', 'z': 'ᮟ'
-  };
+export const toJavanese = (text: string): string =>
+  transliterate(text, "javanese", javanese);
 
-  // Vokal Mandiri (Di awal kata)
-  const independentVowels: Record<string, string> = {
-    'a': 'ᮃ', 'i': 'ᮄ', 'u': 'ᮅ', 'ae': 'ᮈ', 
-    'o': 'ᮇ', 'e': 'ᮆ', 'eu': 'ᮉ'
-  };
+/* ------------------------------------------------------------------ */
+/* Sundanese (U+1B80..U+1BBF)                                          */
+/* ------------------------------------------------------------------ */
+/*
+ * Verified rarangkén (previous mappings were wrong — see report):
+ *   U+1BA4 VOWEL SIGN PANGHULU     -> i
+ *   U+1BA5 VOWEL SIGN PANYUKU      -> u
+ *   U+1BA6 VOWEL SIGN PANAELAENG   -> é   (left-side, stored AFTER consonant)
+ *   U+1BA7 VOWEL SIGN PANOLONG     -> o
+ *   U+1BA8 VOWEL SIGN PAMEPET      -> e (pepet /ə/)
+ *   U+1BA9 VOWEL SIGN PANEULEUNG   -> eu
+ *   U+1BAA SIGN PAMAAEH            -> vowel killer
+ * Previously the code used U+1B92 (LETTER TA) for "i", U+1BAA (PAMAAEH) for
+ * "u", U+1BAE (LETTER KHA) as a sign, and U+1BB5 (DIGIT FIVE) for "eu".
+ */
 
-  // Tanda Vokal (Rarangkén) - Fixed Mapping
-  const vowelSigns: Record<string, string> = {
-    'i': 'ᮒ',   // Panghulu (Seharusnya ᮗ tapi map ke input user sementara, cek font)
-    'u': '᮪',   
-    'ae': 'ᮨ',  // Pamepet
-    'o': 'ᮧ',   // Panolong
-    'e': 'ᮩ',   // Paneuleung
-    'eu': '᮵'   // Panyuku
-  };
+const SU_PAMAAEH = "\u1BAA";
 
-  // ✅ FIX: Gunakan 'const' karena object map dimutasi, bukan di-reassign
-  const map: Record<string, string> = {};
-  
-  // 1. Generate Kombinasi Konsonan + Vokal
-  Object.keys(consonants).forEach(cKey => {
-    const char = consonants[cKey] as string;
-    
-    Object.keys(vowelSigns).forEach(vKey => {
-      map[cKey + vKey] = char + (vowelSigns[vKey] ?? '');
-    });
-
-    // Konsonan + a (Default)
-    map[cKey + 'a'] = char;
-
-    // Konsonan Mati (Pamaéh)
-    map[cKey] = char + '᮪'; 
-  });
-
-  // 2. Tambahkan Vokal Mandiri
-  Object.assign(map, independentVowels);
-
-  let processed = text.toLowerCase();
-  
-  // 3. Replace dari string terpanjang
-  const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
-
-  sortedKeys.forEach(key => {
-    processed = processed.replaceAll(key, map[key] ?? key);
-  });
-
-  return processed;
+const sundanese: ScriptTable = {
+  consonants: {
+    ng: "\u1B8D",
+    ny: "\u1B91",
+    kh: "\u1BAE", // LETTER KHA (a letter, correct here)
+    sy: "\u1BAF", // LETTER SYA
+    k: "\u1B8A",
+    q: "\u1B8B",
+    g: "\u1B8C",
+    c: "\u1B8E",
+    j: "\u1B8F",
+    z: "\u1B90",
+    t: "\u1B92",
+    d: "\u1B93",
+    n: "\u1B94",
+    p: "\u1B95",
+    f: "\u1B96",
+    v: "\u1B97",
+    b: "\u1B98",
+    m: "\u1B99",
+    y: "\u1B9A",
+    r: "\u1B9B",
+    l: "\u1B9C",
+    w: "\u1B9D",
+    s: "\u1B9E",
+    x: "\u1B9F",
+    h: "\u1BA0",
+  },
+  vowelSigns: {
+    eu: "\u1BA9", // PANEULEUNG (before single 'e' so it wins the longest match)
+    i: "\u1BA4", // PANGHULU
+    u: "\u1BA5", // PANYUKU
+    e: "\u1BA8", // PAMEPET (ASCII "e" = pepet in Sundanese Latin orthography)
+    o: "\u1BA7", // PANOLONG
+  },
+  independentVowels: {
+    eu: "\u1B89", // LETTER EU
+    a: "\u1B83", // LETTER A
+    i: "\u1B84", // LETTER I
+    u: "\u1B85", // LETTER U
+    e: "\u1B88", // LETTER E (pepet)
+    o: "\u1B87", // LETTER O
+  },
+  virama: SU_PAMAAEH,
 };
 
-export const toMakassar = (text: string): string => {
-  // Mapping Lontara / Makassar
-  const consonants: Record<string, string> = {
-    'ngka': 'ᨃ', 'mpa': 'ᨇ', 'nra': 'ᨋ', 'nca': 'ᨏ', 
-    'ng': 'ᨂ', 'ny': 'ᨎ', 
-    'k': 'ᨀ', 'g': 'ᨁ', 'p': 'ᨄ', 'b': 'ᨅ', 'm': 'ᨆ', 
-    't': 'ᨈ', 'd': 'ᨉ', 'n': 'ᨊ', 'c': 'ᨌ', 'j': 'ᨍ', 
-    'y': 'ᨐ', 'r': 'ᨑ', 'l': 'ᨒ', 'w': 'ᨓ', 's': 'ᨔ', 
-    'h': 'ᨖ', 'a': 'ᨕ' 
-  };
+export const toSundanese = (text: string): string =>
+  transliterate(text, "sundanese", sundanese);
 
-  const vowels: Record<string, string> = {
-    'i': 'ᨗ', 
-    'u': 'ᨘ', 
-    'e': 'ᨙ', 
-    'o': 'ᨚ'  
-  };
+/* ------------------------------------------------------------------ */
+/* Lontara / Makassar (Buginese block U+1A00..U+1A1F)                  */
+/* ------------------------------------------------------------------ */
+/*
+ * Lontara has no virama in common use: a syllable-final consonant is simply
+ * not written. We therefore emit nothing for a dead consonant rather than
+ * inventing a killer sign.
+ */
 
-  // ✅ FIX: Gunakan 'const'
-  const map: Record<string, string> = {};
-
-  Object.keys(consonants).forEach(cKey => {
-    const char = consonants[cKey] as string;
-
-    Object.keys(vowels).forEach(vKey => {
-      map[cKey + vKey] = char + (vowels[vKey] ?? '');
-    });
-
-    // Konsonan + a (Default) - Lontara implisit 'a'
-    map[cKey + 'a'] = char;
-
-    // Konsonan Mati (Default Lontara seringkali tidak ditulis atau pakai tanda virama virtual, kita set default char)
-    map[cKey] = char;
-  });
-
-  // Tambahan Vokal Mandiri
-  map['a'] = 'ᨕ';
-  map['i'] = 'ᨕᨗ';
-  map['u'] = 'ᨕᨘ';
-  map['e'] = 'ᨕᨙ';
-  map['o'] = 'ᨕᨚ';
-
-  let processed = text.toLowerCase();
-
-  const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
-
-  sortedKeys.forEach(key => {
-    processed = processed.replaceAll(key, map[key] ?? key);
-  });
-  
-  return processed;
+const makassar: ScriptTable = {
+  consonants: {
+    ngka: "\u1A03", // LETTER NGKA
+    mpa: "\u1A07", // LETTER MPA
+    nra: "\u1A0B", // LETTER NRA
+    nca: "\u1A0F", // LETTER NYCA
+    ng: "\u1A02",
+    ny: "\u1A0E",
+    k: "\u1A00",
+    g: "\u1A01",
+    p: "\u1A04",
+    b: "\u1A05",
+    m: "\u1A06",
+    t: "\u1A08",
+    d: "\u1A09",
+    n: "\u1A0A",
+    c: "\u1A0C",
+    j: "\u1A0D",
+    y: "\u1A10",
+    r: "\u1A11",
+    l: "\u1A12",
+    w: "\u1A13", // LETTER VA (used for /w/)
+    s: "\u1A14",
+    h: "\u1A16",
+  },
+  vowelSigns: {
+    i: "\u1A17",
+    u: "\u1A18",
+    e: "\u1A19",
+    o: "\u1A1A",
+  },
+  independentVowels: {
+    a: "\u1A15", // LETTER A
+    i: "\u1A15\u1A17",
+    u: "\u1A15\u1A18",
+    e: "\u1A15\u1A19",
+    o: "\u1A15\u1A1A",
+  },
+  virama: "", // unwritten final consonant
 };
+
+export const toMakassar = (text: string): string =>
+  transliterate(text, "makassar", makassar);
+
+/** Debug helper: hex codepoint dump of a string. */
+export const codepoints = (s: string): string[] =>
+  [...s].map((c) => (c.codePointAt(0) as number).toString(16));
