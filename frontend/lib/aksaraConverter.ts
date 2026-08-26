@@ -242,54 +242,115 @@ export const toSundanese = (text: string): string => {
 };
 
 export const toMakassar = (text: string): string => {
-  // Mapping Lontara / Makassar
+  if (!text) return '';
+
+  const input = text.toLowerCase().trim();
+  let result = '';
+  let i = 0;
+
+  // Define consonant clusters (longest first for greedy matching)
+  const clusters = ['ngka', 'mpa', 'nra', 'nca', 'ng', 'ny'];
+
+  // Define base consonants
   const consonants: Record<string, string> = {
-    'ngka': 'ᨃ', 'mpa': 'ᨇ', 'nra': 'ᨋ', 'nca': 'ᨏ', 
-    'ng': 'ᨂ', 'ny': 'ᨎ', 
-    'k': 'ᨀ', 'g': 'ᨁ', 'p': 'ᨄ', 'b': 'ᨅ', 'm': 'ᨆ', 
-    't': 'ᨈ', 'd': 'ᨉ', 'n': 'ᨊ', 'c': 'ᨌ', 'j': 'ᨍ', 
-    'y': 'ᨐ', 'r': 'ᨑ', 'l': 'ᨒ', 'w': 'ᨓ', 's': 'ᨔ', 
-    'h': 'ᨖ', 'a': 'ᨕ' 
+    'k': 'ᨀ', 'g': 'ᨁ', 'p': 'ᨄ', 'b': 'ᨅ', 'm': 'ᨆ',
+    't': 'ᨈ', 'd': 'ᨉ', 'n': 'ᨊ', 'c': 'ᨌ', 'j': 'ᨍ',
+    'y': 'ᨐ', 'r': 'ᨑ', 'l': 'ᨒ', 'w': 'ᨓ', 's': 'ᨔ',
+    'h': 'ᨖ',
+    // Add cluster mappings from original
+    'ngka': 'ᨃ', 'mpa': 'ᨇ', 'nra': 'ᨋ', 'nca': 'ᨏ',
+    'ng': 'ᨂ', 'ny': 'ᨎ'
   };
 
-  const vowels: Record<string, string> = {
-    'i': 'ᨗ', 
-    'u': 'ᨘ', 
-    'e': 'ᨙ', 
-    'o': 'ᨚ'  
+  // Define vowel signs with positioning
+  // Format: [vowelChar, { prefix: boolean, glyph: string }]
+  const vowelSigns: Record<string, [boolean, string]> = {
+    'a': [false, ''], // inherent vowel (not written in Lontara)
+    'i': [false, 'ᨗ'], // U+1A17
+    'u': [false, 'ᨘ'], // U+1A18
+    'e': [false, 'ᨙ'], // U+1A19
+    'o': [false, 'ᨚ'], // U+1A1A
   };
 
-  // ✅ FIX: Gunakan 'const'
-  const map: Record<string, string> = {};
+  while (i < input.length) {
+    // Skip whitespace and preserve it
+    if (input[i] === ' ') {
+      result += ' ';
+      i++;
+      continue;
+    }
 
-  Object.keys(consonants).forEach(cKey => {
-    const char = consonants[cKey];
+    // Try to match longest consonant cluster first
+    let matched = false;
+    let consonant = '';
+    let clusterLength = 0;
 
-    Object.keys(vowels).forEach(vKey => {
-      map[cKey + vKey] = char + vowels[vKey];
-    });
+    // Check for clusters (longest first)
+    for (const cluster of [...clusters].sort((a, b) => b.length - a.length)) {
+      if (input.startsWith(cluster, i)) {
+        consonant = cluster;
+        clusterLength = cluster.length;
+        matched = true;
+        break;
+      }
+    }
 
-    // Konsonan + a (Default) - Lontara implisit 'a'
-    map[cKey + 'a'] = char;
+    // If no cluster matched, try single consonant
+    if (!matched && i < input.length) {
+      const singleChar = input[i];
+      if (consonants[singleChar]) {
+        consonant = singleChar;
+        clusterLength = 1;
+        matched = true;
+      }
+    }
 
-    // Konsonan Mati (Default Lontara seringkali tidak ditulis atau pakai tanda virama virtual, kita set default char)
-    map[cKey] = char;
-  });
+    // If still no match, pass through the character
+    if (!matched) {
+      result += input[i];
+      i++;
+      continue;
+    }
 
-  // Tambahan Vokal Mandiri
-  map['a'] = 'ᨕ';
-  map['i'] = 'ᨕᨗ';
-  map['u'] = 'ᨕᨘ';
-  map['e'] = 'ᨕᨙ';
-  map['o'] = 'ᨕᨚ';
+    // Get the base consonant glyph
+    let baseGlyph = consonants[consonant];
+    if (!baseGlyph) {
+      // Fallback - should not happen with proper mapping
+      result += consonant;
+      i += clusterLength;
+      continue;
+    }
 
-  let processed = text.toLowerCase();
+    // Look ahead for vowel
+    let vowel = 'a'; // default inherent vowel
+    let vowelLength = 0;
 
-  const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
+    if (i + clusterLength < input.length) {
+      const nextChar = input[i + clusterLength];
+      // Check for vowel signs
+      if (['a', 'i', 'u', 'e', 'o'].includes(nextChar)) {
+        vowel = nextChar;
+        vowelLength = 1;
+      }
+    }
 
-  sortedKeys.forEach(key => {
-    processed = processed.replaceAll(key, map[key]);
-  });
-  
-  return processed;
+    // Apply vowel sign according to positioning rules
+    const [isPrefix, vowelGlyph] = vowelSigns[vowel];
+
+    if (isPrefix) {
+      // Prefix vowels come before the consonant
+      result += vowelGlyph + baseGlyph;
+    } else if (vowelGlyph) {
+      // Postfix vowels come after the consonant
+      result += baseGlyph + vowelGlyph;
+    } else {
+      // No vowel sign (inherent 'a') - not written in Lontara
+      result += baseGlyph;
+    }
+
+    // Move position past consonant and vowel
+    i += clusterLength + vowelLength;
+  }
+
+  return result;
 };
