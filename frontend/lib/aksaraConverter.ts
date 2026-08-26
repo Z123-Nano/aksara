@@ -1,45 +1,89 @@
 export const toJavanese = (text: string): string => {
-  // 1. Mapping Huruf Dasar (Nglegena)
-  const map: { [key: string]: string } = {
-    'dha': 'ꦝ', 'tha': 'ꦛ', 'nya': 'ꦚ', 'nga': 'ꦔ', 
-    'ha': 'ꦲ', 'na': 'ꦤ', 'ca': 'ꦕ', 'ra': 'ꦫ', 'ka': 'ꦏ',
-    'da': 'ꦢ', 'ta': 'ꦠ', 'sa': 'ꦱ', 'wa': 'ꦮ', 'la': 'ꦭ',
-    'pa': 'ꦥ', 'ja': 'ꦗ', 'ya': 'ꦪ', 'ma': 'ꦩ', 'ga': 'ꦒ', 'ba': 'ꦛ' 
+  // Javanese Unicode block: U+A980–U+A9DF
+  // Vowel signs:
+  //   i (wulu)   = U+A9B6  ꦶ
+  //   u (suku)   = U+A9B8  ꦸ
+  //   e (taling) = U+A9BA  ꦺ
+  //   o (taling tarung) = U+A9BA U+A9BB  ꦺꦴ
+  // Pangkon (virama) = U+A9C0  ꧀
+
+  // 1. Mapping Huruf Dasar (Nglegena) - consonant + inherent 'a'
+  const consonantMap: { [key: string]: string } = {
+    // digraphs
+    'ny': 'ꦚ', 'ng': 'ꦔ', 'dh': 'ꦝ', 'th': 'ꦛ',
+    // single consonants
+    'h': 'ꦲ', 'n': 'ꦤ', 'c': 'ꦕ', 'r': 'ꦫ', 'k': 'ꦏ',
+    'd': 'ꦢ', 't': 'ꦠ', 's': 'ꦱ', 'w': 'ꦮ', 'l': 'ꦭ',
+    'p': 'ꦥ', 'j': 'ꦗ', 'y': 'ꦪ', 'm': 'ꦩ', 'g': 'ꦒ', 'b': 'ꦧ'
   };
 
-  // 2. Mapping Konsonan Mati (Pangkon)
-  const consonantMap: { [key: string]: string } = {
-    'dh': 'ꦝ꧀', 'th': 'ꦛ꧀', 'ny': 'ꦚ꧀', 'ng': 'ꦔ꧀',
+  // 2. Mapping for consonant + pangkon (konsonan mati)
+  const pangkonMap: { [key: string]: string } = {
+    'ny': 'ꦚ꧀', 'ng': 'ꦔ꧀', 'dh': 'ꦝ꧀', 'th': 'ꦛ꧀',
     'h': 'ꦲ꧀', 'n': 'ꦤ꧀', 'c': 'ꦕ꧀', 'r': 'ꦫ꧀', 'k': 'ꦏ꧀',
     'd': 'ꦢ꧀', 't': 'ꦠ꧀', 's': 'ꦱ꧀', 'w': 'ꦮ꧀', 'l': 'ꦭ꧀',
-    'p': 'ꦥ꧀', 'j': 'ꦗ꧀', 'y': 'ꦪ꧀', 'm': 'ꦩ꧀', 'g': 'ꦒ꧀', 'b': 'ꦛ꧀'
+    'p': 'ꦥ꧀', 'j': 'ꦗ꧀', 'y': 'ꦪ꧀', 'm': 'ꦩ꧀', 'g': 'ꦒ꧀', 'b': 'ꦧ꧀'
   };
 
-  let processed = text.toLowerCase();
+  // 3. Vowel signs (including inherent 'a' with empty sign)
+  const vowelSigns: { [key: string]: string } = {
+    'a': '',   // inherent vowel (no sign)
+    'i': 'ꦶ',   // wulu
+    'u': 'ꦸ',   // suku
+    'e': 'ꦺ',   // taling
+    'o': 'ꦺꦴ'   // taling tarung
+  };
 
-  // A. Ganti Vokal Khusus
-  processed = processed.replace(/e/g, 'ꦺ'); // Taling
-  processed = processed.replace(/o/g, 'ꦺꦴ'); // Taling Tarung
-  processed = processed.replace(/i/g, 'ꦶ'); // Wulu
-  processed = processed.replace(/u/g, 'ꦸ'); // Suku
+  let processed = '';
+  let i = 0;
+  const lower = text.toLowerCase();
 
-  // B. Ganti Suku Kata Dasar
-  const keys = Object.keys(map).sort((a, b) => b.length - a.length);
-  keys.forEach(key => {
-    processed = processed.replaceAll(key, map[key]);
-  });
+  while (i < lower.length) {
+    // Try to match longest consonant cluster (digraph first)
+    let match = null;
+    let matchLen = 0;
+    // Check digraphs (length 2) then single (length 1)
+    for (let len = 2; len >= 1; len--) {
+      if (i + len > lower.length) continue;
+      const sub = lower.substring(i, i + len);
+      if (consonantMap[sub]) {
+        match = sub;
+        matchLen = len;
+        break;
+      }
+    }
 
-  // C. Handling Huruf Mati
-  processed = processed.replace(/[a-z]+/g, (match) => {
-    let temp = match;
-    const consKeys = Object.keys(consonantMap).sort((a,b) => b.length - a.length);
-    consKeys.forEach(k => {
-       if(temp.includes(k)){
-         temp = temp.replaceAll(k, consonantMap[k]);
-       }
-    });
-    return temp;
-  });
+    if (match) {
+      const baseChar = consonantMap[match];
+      // Look ahead for vowel
+      let vowelSign = '';
+      let vowelLen = 0;
+      // Check for vowel (single char: a, i, u, e, o)
+      // Note: 'o' is two Unicode codepoints but we treat as one input 'o'
+      if (i + matchLen < lower.length) {
+        const nextChar = lower.charAt(i + matchLen);
+        if (vowelSigns[nextChar] !== undefined) {
+          vowelSign = vowelSigns[nextChar];
+          vowelLen = 1;
+        }
+      }
+
+      if (vowelLen > 0) {
+        // consonant + vowel (including inherent 'a')
+        processed += baseChar + vowelSign;
+        i += matchLen + vowelLen;
+      } else {
+        // consonant + pangkon (no vowel following)
+        processed += pangkonMap[match];
+        i += matchLen;
+      }
+    } else {
+      // If no consonant match, treat as vowel? Should not happen for valid input.
+      // For safety, pass through unchanged.
+      processed += lower.charAt(i);
+      i++;
+    }
+  }
 
   return processed;
 };
