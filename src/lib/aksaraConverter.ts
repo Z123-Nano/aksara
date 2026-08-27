@@ -1,50 +1,143 @@
 export const toJavanese = (text: string): string => {
-  // 1. Mapping Huruf Dasar (Nglegena)
-  const map: { [key: string]: string } = {
-    'dha': 'ꦝ', 'tha': 'ꦛ', 'nya': 'ꦚ', 'nga': 'ꦔ', 
-    'ha': 'ꦲ', 'na': 'ꦤ', 'ca': 'ꦕ', 'ra': 'ꦫ', 'ka': 'ꦏ',
-    'da': 'ꦢ', 'ta': 'ꦠ', 'sa': 'ꦱ', 'wa': 'ꦮ', 'la': 'ꦭ',
-    'pa': 'ꦥ', 'ja': 'ꦗ', 'ya': 'ꦪ', 'ma': 'ꦩ', 'ga': 'ꦒ', 'ba': 'ꦛ' 
+  if (!text) return '';
+
+  const input = text.toLowerCase();
+  let result = '';
+  let i = 0;
+  let wordStart = true; // true at start of string and after whitespace
+
+  // Define consonant clusters (longest first for greedy matching)
+  const clusters = ['dh', 'th', 'ny', 'ng'];
+
+  // Define base consonants
+  const consonants: Record<string, string> = {
+    'k': 'ꦏ', 'g': 'ꦒ', 'ng': 'ꦔ', 'c': 'ꦕ', 'j': 'ꦗ', 'ny': 'ꦚ',
+    't': 'ꦠ', 'd': 'ꦢ', 'n': 'ꦤ', 'p': 'ꦥ', 'b': 'ꦧ', 'm': 'ꦩ',
+    'y': 'ꦪ', 'r': 'ꦫ', 'l': 'ꦭ', 'w': 'ꦮ', 's': 'ꦱ', 'h': 'ꦲ',
+    // Add cluster mappings
+    'dh': 'ꦝ', 'th': 'ꦛ'
   };
 
-  // 2. Mapping Konsonan Mati (Pangkon)
-  const consonantMap: { [key: string]: string } = {
-    'dh': 'ꦝ꧀', 'th': 'ꦛ꧀', 'ny': 'ꦚ꧀', 'ng': 'ꦔ꧀',
-    'h': 'ꦲ꧀', 'n': 'ꦤ꧀', 'c': 'ꦕ꧀', 'r': 'ꦫ꧀', 'k': 'ꦏ꧀',
-    'd': 'ꦢ꧀', 't': 'ꦠ꧀', 's': 'ꦱ꧀', 'w': 'ꦮ꧀', 'l': 'ꦭ꧀',
-    'p': 'ꦥ꧀', 'j': 'ꦗ꧀', 'y': 'ꦪ꧀', 'm': 'ꦩ꧀', 'g': 'ꦒ꧀', 'b': 'ꦛ꧀'
+  // Define vowel signs with their Unicode codepoints
+  // Note: 'a' is inherent vowel (no sign)
+  const vowelSigns: Record<string, string> = {
+    'a': '',   // inherent vowel
+    'i': 'ꦶ',   // wulu
+    'u': 'ꦸ',   // suku
+    'e': 'ꦺ',   // taling
+    'o': 'ꦺꦴ'   // taling tarung
   };
 
-  let processed = text.toLowerCase();
+  // Ha-carrier glyph (used for word-initial vowels)
+  const haCarrier = consonants['h']; // 'h': 'ꦲ'
 
-  // A. Ganti Vokal Khusus
-  processed = processed.replace(/e/g, 'ꦺ'); // Taling
-  processed = processed.replace(/o/g, 'ꦺꦴ'); // Taling Tarung
-  processed = processed.replace(/i/g, 'ꦶ'); // Wulu
-  processed = processed.replace(/u/g, 'ꦸ'); // Suku
+  while (i < input.length) {
+    // Handle whitespace
+    if (input[i] === ' ') {
+      result += ' ';
+      i++;
+      wordStart = true;
+      continue;
+    }
 
-  // B. Ganti Suku Kata Dasar
-  const keys = Object.keys(map).sort((a, b) => b.length - a.length);
-  keys.forEach(key => {
-    processed = processed.replaceAll(key, map[key] ?? key);
-  });
+    // Handle word-initial vowels
+    if (wordStart && ['a', 'i', 'u', 'e', 'o'].includes(input[i])) {
+      const vowel = input[i];
+      let sign = '';
+      if (vowel === 'a') {
+        // For word-initial 'a', use ha-carrier + pepet sign
+        sign = 'ꦼ'; // pepet
+      } else {
+        sign = vowelSigns[vowel];
+      }
+      result += haCarrier + sign;
+      i++;
+      wordStart = false; // after processing the vowel, we are no longer at word start
+      continue;
+    }
 
-  // C. Handling Huruf Mati
-  processed = processed.replace(/[a-z]+/g, (match) => {
-    let temp = match;
-    const consKeys = Object.keys(consonantMap).sort((a,b) => b.length - a.length);
-    consKeys.forEach(k => {
-       if(temp.includes(k)){
-         temp = temp.replaceAll(k, consonantMap[k] ?? k);
-       }
-    });
-    return temp;
-  });
+    // Try to match longest consonant cluster first
+    let matched = false;
+    let consonant = '';
+    let clusterLength = 0;
 
-  return processed;
+    // Check for clusters (2-char first)
+    for (const cluster of clusters) {
+      if (input.startsWith(cluster, i)) {
+        consonant = cluster;
+        clusterLength = cluster.length;
+        matched = true;
+        break;
+      }
+    }
+
+    // If no cluster matched, try single consonant
+    if (!matched && i < input.length) {
+      const singleChar = input[i];
+      if (consonants[singleChar]) {
+        consonant = singleChar;
+        clusterLength = 1;
+        matched = true;
+      }
+    }
+
+    // If still no match, pass through the character (vowel or other)
+    if (!matched) {
+      result += input[i];
+      i++;
+      wordStart = false;
+      continue;
+    }
+
+    // Get the base consonant glyph
+    let baseGlyph = consonants[consonant];
+    if (!baseGlyph) {
+      // Fallback - should not happen with proper mapping
+      result += consonant;
+      i += clusterLength;
+      wordStart = false;
+      continue;
+    }
+
+    // Look ahead for vowel
+    let vowel = ''; // default no vowel
+    let vowelLength = 0;
+
+    if (i + clusterLength < input.length) {
+      const nextChar = input[i + clusterLength];
+      // Check for vowel letters
+      if (['a', 'i', 'u', 'e', 'o'].includes(nextChar)) {
+        vowel = nextChar;
+        vowelLength = 1;
+      }
+    }
+
+    // Output the consonant glyph
+    result += baseGlyph;
+
+    // If there is a vowel, output the vowel sign
+    if (vowel) {
+      result += vowelSigns[vowel];
+    } else {
+      // No vowel following, so add pangkon (virama)
+      result += '꧀'; // U+A9C0
+    }
+
+    // Move position past consonant and vowel
+    i += clusterLength + vowelLength;
+    wordStart = false;
+  }
+
+  return result;
 };
 
 export const toSundanese = (text: string): string => {
+  if (!text) return '';
+
+  const input = text.toLowerCase();
+  let result = '';
+  let i = 0;
+
   // Mapping Konsonan Sunda (Unicode Baku)
   const consonants: Record<string, string> = {
     'ng': 'ᮍ', 'ny': 'ᮑ', 'kh': 'ᮭ', 'sy': 'ᮯ',
@@ -61,19 +154,19 @@ export const toSundanese = (text: string): string => {
     'o': 'ᮇ', 'e': 'ᮆ', 'eu': 'ᮉ'
   };
 
-  // Tanda Vokal (Rarangkén) - Fixed Mapping
+  // Tanda Vokal (Rarangkén) - Fixed Mapping according to user's claims
   const vowelSigns: Record<string, string> = {
-    'i': 'ᮒ',   // Panghulu (Seharusnya ᮗ tapi map ke input user sementara, cek font)
-    'u': '᮪',   
-    'ae': 'ᮨ',  // Pamepet
-    'o': 'ᮧ',   // Panolong
-    'e': 'ᮩ',   // Paneuleung
-    'eu': '᮵'   // Panyuku
+    'i': 'ᮤ',   // Panghulu U+1BA4
+    'u': 'ᮥ',   // Panyuku U+1BA5
+    'ae': 'ᮨ',  // Pamepet U+1BA8
+    'o': 'ᮧ',   // Panolong U+1BA7
+    'e': 'ᮨ',   // Paneuleung U+1BA9
+    'eu': '᮪',   // Pamaaeh (vowel killer) U+1BAA
   };
 
   // ✅ FIX: Gunakan 'const' karena object map dimutasi, bukan di-reassign
   const map: Record<string, string> = {};
-  
+
   // 1. Generate Kombinasi Konsonan + Vokal
   Object.keys(consonants).forEach(cKey => {
     const char = consonants[cKey] as string;
@@ -98,7 +191,7 @@ export const toSundanese = (text: string): string => {
   const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
 
   sortedKeys.forEach(key => {
-    processed = processed.replaceAll(key, map[key] ?? key);
+    processed = processed.split(key).join(map[key] ?? key);
   });
 
   return processed;
@@ -151,8 +244,8 @@ export const toMakassar = (text: string): string => {
   const sortedKeys = Object.keys(map).sort((a, b) => b.length - a.length);
 
   sortedKeys.forEach(key => {
-    processed = processed.replaceAll(key, map[key] ?? key);
+    processed = processed.split(key).join(map[key] ?? key);
   });
-  
+
   return processed;
-};
+}
