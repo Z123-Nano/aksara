@@ -108,3 +108,16 @@ describe('aksaraConverter', () => {
     });
   });
 });
+describe('getUnsupportedLetters - Balinese', () => {
+  test('returns unsupported letters for Balinese', () => {
+    expect(getUnsupportedLetters('zaman', 'balinese')).toEqual(['z']);
+    expect(getUnsupportedLetters('fajar', 'balinese')).toEqual(['f']);
+    expect(getUnsupportedLetters('xerus', 'balinese')).toEqual(['x']);
+    expect(getUnsupportedLetters('qatar', 'balinese')).toEqual(['q']);
+    expect(getUnsupportedLetters('vase', 'balinese')).toEqual(['v']);
+    // multiple unsupported letters
+    expect(getUnsupportedLetters('zxvfq', 'balinese')).toEqual(['f', 'q', 'v', 'x', 'z']);
+    // no unsupported letters
+    expect(getUnsupportedLetters('bakti', 'balinese')).toEqual([]);
+  });
+});

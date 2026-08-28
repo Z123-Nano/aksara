@@ -18,7 +18,7 @@
 //   'jakarta'           -> was already commented out as corrupted upstream.
 // None of these are re-exported; they exist only as a record of what was wrong.
 
-export type ScriptKey = "javanese" | "sundanese" | "makassar";
+export type ScriptKey = "javanese" | "sundanese" | "makassar" | "balinese";
 
 /**
  * Verified overrides. Empty on purpose: no entry has been independently

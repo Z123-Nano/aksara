@@ -37,6 +37,9 @@ export function getUnsupportedLetters(text: string, script: ScriptKey): string[]
     case 'makassar':
       table = makassar;
       break;
+    case 'balinese':
+      table = balinese;
+      break;
     default:
       const _exhaustive: never = script;
       table = { consonants: {}, vowelSigns: {}, independentVowels: {}, virama: '' };
@@ -128,7 +131,7 @@ function convertWord(word: string, t: ScriptTable): string {
 /** Applies the converter per word while preserving all whitespace runs. */
 function transliterate(
   text: string,
-  script: "javanese" | "sundanese" | "makassar",
+  script: "javanese" | "sundanese" | "makassar" | "balinese",
   t: ScriptTable,
 ): string {
   return text
@@ -311,6 +314,63 @@ const makassar: ScriptTable = {
   },
   virama: "", // unwritten final consonant
 };
+
+/* ------------------------------------------------------------------ */
+/* Balinese (U+1B00..U+1BFF)                                          */
+/* ------------------------------------------------------------------ */
+/*
+ * Simplifications (matching the pattern of existing scripts):
+ * 1. No true gantungan/stacked conjunct forms for consonant clusters — use
+ *    visible adeg-adeg (virama) + the next consonant's normal glyph, the
+ *    same pattern already used for Javanese pangkon. Traditional orthography
+ *    uses subjoined stacking here.
+ * 2. No tedung/vowel-length distinction (ā/ī/ū vs a/i/u) — Latin input is
+ *    treated as always short vowels.
+ * 3. Only the core 18 consonants are supported; any Latin letter without a
+ *    mapping (this will include z, x, v, q, f — same situation as
+ *    Javanese/Makassar) should fall through to the existing
+ *    getUnsupportedLetters() mechanism.
+ */
+
+const balinese: ScriptTable = {
+  consonants: {
+    k: "ᬓ",
+    g: "ᬕ",
+    ng: "ᬗ",
+    c: "ᬘ",
+    j: "ᬚ",
+    ny: "ᬜ",
+    t: "ᬢ",
+    d: "ᬤ",
+    n: "ᬦ",
+    p: "ᬧ",
+    b: "ᬩ",
+    m: "ᬫ",
+    y: "ᬬ",
+    r: "ᬭ",
+    l: "ᬮ",
+    w: "ᬯ",
+    s: "ᬲ",
+    h: "ᬳ",
+  },
+  vowelSigns: {
+    i: "ᬶ", // Ulu
+    u: "ᬸ", // Suku
+    e: "ᬾ", // Taling
+    o: "ᭀ", // Taling Tedung
+  },
+  independentVowels: {
+    a: "ᬅ", // Akara
+    i: "ᬇ", // Ikara
+    u: "ᬉ", // Ukara
+    e: "ᬏ", // Ekara
+    o: "ᬑ", // Okara
+  },
+  virama: "᭄", // Adeg Adeg
+};
+
+export const toBalinese = (text: string): string =>
+  transliterate(text, "balinese", balinese);
 
 export const toMakassar = (text: string): string =>
   transliterate(text, "makassar", makassar);
