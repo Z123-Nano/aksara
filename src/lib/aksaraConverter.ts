@@ -14,9 +14,54 @@
  */
 
 import { lookupDictionary } from "./aksaraDictionary";
+import type { ScriptKey } from "./aksaraDictionary";
 
 export { getConversionConfidence } from "./aksaraDictionary";
 export type { ScriptKey } from "./aksaraDictionary";
+
+/**
+ * Returns distinct unsupported Latin letters (a-z) found in the input for the given script.
+ * A letter is considered unsupported if the script's consonant table has no single-letter entry for it.
+ * For Sundanese, this always returns an empty array because its table includes f, v, z, q, x.
+ */
+export function getUnsupportedLetters(text: string, script: ScriptKey): string[] {
+  const lower = text.toLowerCase();
+  let table: ScriptTable;
+  switch (script) {
+    case 'javanese':
+      table = javanese;
+      break;
+    case 'sundanese':
+      table = sundanese;
+      break;
+    case 'makassar':
+      table = makassar;
+      break;
+    default:
+      const _exhaustive: never = script;
+      table = { consonants: {}, vowelSigns: {}, independentVowels: {}, virama: '' };
+  }
+  const supported = new Set<string>();
+  // consonants single letters
+  for (const [key] of Object.entries(table.consonants)) {
+    if (key.length === 1) supported.add(key);
+  }
+  // vowelSigns single letters
+  for (const [key] of Object.entries(table.vowelSigns)) {
+    if (key.length === 1) supported.add(key);
+  }
+  // independentVowels single letters
+  for (const [key] of Object.entries(table.independentVowels)) {
+    if (key.length === 1) supported.add(key);
+  }
+  const unsupported = new Set<string>();
+  for (const ch of lower) {
+    if (/[a-z]/.test(ch) && !supported.has(ch)) {
+      unsupported.add(ch);
+    }
+  }
+  return Array.from(unsupported).sort();
+}
 
 /* ------------------------------------------------------------------ */
 /* Generic syllabifier                                                 */

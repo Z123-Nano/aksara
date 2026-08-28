@@ -1,7 +1,8 @@
 import { useState, useMemo } from "react";
 import { ethers } from "ethers";
-import { toJavanese, toSundanese, toMakassar } from "@/lib/aksaraConverter";
+import { toJavanese, toSundanese, toMakassar, getUnsupportedLetters } from "@/lib/aksaraConverter";
 import { savePrasasti } from "@/lib/prasasti.functions";
+import { getLoanwordNote } from "@/lib/loanwordNotes";
 
 type ScriptType = "javanese" | "sundanese" | "makassar";
 
@@ -45,6 +46,15 @@ export default function PrasastiForm() {
         return "Aksara Lontara (Makassar)";
     }
   };
+
+  const unsupportedLetters = useMemo(() => {
+    if (!inputName) return [];
+    return getUnsupportedLetters(inputName, scriptType);
+  }, [inputName, scriptType]);
+
+  const unsupportedSet = useMemo(() => new Set(unsupportedLetters), [
+    unsupportedLetters,
+  ]);
 
   const handleMint = async () => {
     if (typeof window === "undefined" || !window.ethereum) {
@@ -144,7 +154,24 @@ export default function PrasastiForm() {
               </p>
 
               <h2 className="text-[#F9F7F2] text-center leading-normal drop-shadow-md font-serif break-all w-full text-4xl md:text-6xl">
-                {resultAksara || "..."}
+                {resultAksara ? (
+                  <>
+                    {resultAksara.split('').map((ch, idx) => {
+                      const isUnsupported = /[a-z]/.test(ch) && unsupportedSet.has(ch);
+                      return isUnsupported ? (
+                        <span
+                          key={idx}
+                          className="border-b-2 border-dotted border-[#D4AF37]/50"
+                          title={getLoanwordNote(ch)}
+                        >
+                          {ch}
+                        </span>
+                      ) : (
+                        <>{ch}</>
+                      );
+                    })}
+                  </>
+                ) : "..."}
               </h2>
             </div>
           </div>

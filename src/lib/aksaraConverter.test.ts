@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { toJavanese, toSundanese, toMakassar } from './aksaraConverter';
+import { toJavanese, toSundanese, toMakassar, getUnsupportedLetters } from './aksaraConverter';
 import { getConversionConfidence } from './aksaraDictionary';
 
 describe('aksaraConverter', () => {
@@ -72,5 +72,39 @@ describe('aksaraConverter', () => {
     // Assuming dictionary is empty currently
     expect(getConversionConfidence('unknownword', 'javanese')).toBe('rule-based');
     expect(getConversionConfidence('ba', 'javanese')).toBe('rule-based'); // if not in dict
+  });
+
+  describe('getUnsupportedLetters', () => {
+    test('returns unsupported letters for Javanese', () => {
+      expect(getUnsupportedLetters('zaman', 'javanese')).toEqual(['z']);
+      expect(getUnsupportedLetters('fajar', 'javanese')).toEqual(['f']);
+      expect(getUnsupportedLetters('xerus', 'javanese')).toEqual(['x']);
+      expect(getUnsupportedLetters('qatar', 'javanese')).toEqual(['q']);
+      expect(getUnsupportedLetters('vase', 'javanese')).toEqual(['v']);
+      // multiple unsupported letters
+      expect(getUnsupportedLetters('zxvfq', 'javanese')).toEqual(['f', 'q', 'v', 'x', 'z']);
+      // no unsupported letters
+      expect(getUnsupportedLetters('bakti', 'javanese')).toEqual([]);
+    });
+
+    test('returns empty array for Sundanese (supports f/v/z/kh/sy)', () => {
+      expect(getUnsupportedLetters('fajar', 'sundanese')).toEqual([]);
+      expect(getUnsupportedLetters('zaman', 'sundanese')).toEqual([]);
+      expect(getUnsupportedLetters('xerus', 'sundanese')).toEqual([]);
+      expect(getUnsupportedLetters('qatar', 'sundanese')).toEqual([]);
+      expect(getUnsupportedLetters('vase', 'sundanese')).toEqual([]);
+      expect(getUnsupportedLetters('khody', 'sundanese')).toEqual([]); // kh is digraph, but k and h are supported
+      expect(getUnsupportedLetters('syair', 'sundanese')).toEqual([]); // sy digraph, s and y supported
+    });
+
+    test('returns unsupported letters for Makassar', () => {
+      expect(getUnsupportedLetters('zaman', 'makassar')).toEqual(['z']);
+      expect(getUnsupportedLetters('fajar', 'makassar')).toEqual(['f']);
+      expect(getUnsupportedLetters('xerus', 'makassar')).toEqual(['x']);
+      expect(getUnsupportedLetters('qatar', 'makassar')).toEqual(['q']);
+      expect(getUnsupportedLetters('vase', 'makassar')).toEqual(['v']);
+      expect(getUnsupportedLetters('zxvfq', 'makassar')).toEqual(['f', 'q', 'v', 'x', 'z']);
+      expect(getUnsupportedLetters('bakti', 'makassar')).toEqual([]);
+    });
   });
 });
