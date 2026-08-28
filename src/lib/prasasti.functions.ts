@@ -8,13 +8,18 @@ const schema = z.object({
   signature: z.string().min(1),
 });
 
+// Dev-time warning if token missing
+if (typeof process !== "undefined" && process.env && !process.env["SANITY_API_TOKEN"]) {
+  console.warn("[dev] SANITY_API_TOKEN missing – prasasti writes will fail.");
+}
+
 export const savePrasasti = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => schema.parse(data))
   .handler(async ({ data }) => {
     const token = process.env["SANITY_API_TOKEN"];
     if (!token) {
       console.warn("SANITY_API_TOKEN missing — prasasti not persisted.");
-      return { saved: false as const };
+      throw new Error("SANITY_API_TOKEN missing");
     }
 
     const { createClient } = await import("@sanity/client");

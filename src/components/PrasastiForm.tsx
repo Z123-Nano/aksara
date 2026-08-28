@@ -63,22 +63,18 @@ export default function PrasastiForm() {
 
       setLastHash(signature);
 
-      try {
-        await savePrasasti({
-          data: {
-            name: inputName,
-            message: resultAksara,
-            scriptType,
-            signature,
-          },
-        });
-      } catch (error) {
-        console.error("Gagal simpan ke database:", error);
-      }
+      await savePrasasti({
+        data: {
+          name: inputName,
+          message: resultAksara,
+          scriptType,
+          signature,
+        },
+      });
 
       setStatus("success");
     } catch (error) {
-      console.error(error);
+      console.error("Gagal simpan ke database:", error);
       setStatus("error");
     }
   };
