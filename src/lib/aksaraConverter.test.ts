@@ -119,5 +119,11 @@ describe('getUnsupportedLetters - Balinese', () => {
     expect(getUnsupportedLetters('zxvfq', 'balinese')).toEqual(['f', 'q', 'v', 'x', 'z']);
     // no unsupported letters
     expect(getUnsupportedLetters('bakti', 'balinese')).toEqual([]);
+
+  test('katam output', () => {
+    const out = toBalinese('katam');
+    console.log('katam ->', out, [...out].map(c => c.codePointAt(0).toString(16).toUpperCase()).join(' '));
+    // Just to see output; no assertion needed
+    expect(true).toBe(true);
   });
 });

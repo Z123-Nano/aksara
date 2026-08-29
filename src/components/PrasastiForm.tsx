@@ -1,11 +1,11 @@
 import { useState, useMemo } from "react";
 import { ethers } from "ethers";
-import { toJavanese, toSundanese, toMakassar, getUnsupportedLetters } from "@/lib/aksaraConverter";
+import { toJavanese, toSundanese, toMakassar, toBalinese, getUnsupportedLetters } from "@/lib/aksaraConverter";
 import { savePrasasti } from "@/lib/prasasti.functions";
 import { getLoanwordNote } from "@/lib/loanwordNotes";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
-type ScriptType = "javanese" | "sundanese" | "makassar";
+type ScriptType = "javanese" | "sundanese" | "makassar" | "balinese";
 
 interface Eip1193Provider {
   request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
@@ -32,6 +32,8 @@ export default function PrasastiForm() {
         return toSundanese(inputName);
       case "makassar":
         return toMakassar(inputName);
+      case "balinese":
+        return toBalinese(inputName);
       default:
         return toJavanese(inputName);
     }
@@ -45,6 +47,8 @@ export default function PrasastiForm() {
         return "Aksara Sunda (Kaganga)";
       case "makassar":
         return "Aksara Lontara (Makassar)";
+      case "balinese":
+        return "Aksara Bali";
     }
   };
 
@@ -110,6 +114,7 @@ export default function PrasastiForm() {
                 <option value="javanese">Jawa (Hanacaraka)</option>
                 <option value="sundanese">Sunda (Ngalagena)</option>
                 <option value="makassar">Makassar/Bugis (Lontara)</option>
+                <option value="balinese">Bali (Aksara Bali)</option>
               </select>
               <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-[#432818]">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
