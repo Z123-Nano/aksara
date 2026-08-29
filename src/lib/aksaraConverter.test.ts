@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { toJavanese, toSundanese, toMakassar, getUnsupportedLetters } from './aksaraConverter';
+import { toJavanese, toSundanese, toMakassar, toBalinese, getUnsupportedLetters } from './aksaraConverter';
 import { getConversionConfidence } from './aksaraDictionary';
 
 describe('aksaraConverter', () => {
