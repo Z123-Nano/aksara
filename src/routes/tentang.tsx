@@ -73,22 +73,22 @@ const STATISTIK = [
 
 function TentangPage() {
   return (
-    <main className="bg-white selection:bg-[#D4AF37] selection:text-[#2A1D15]">
+    <main className="bg-white selection:bg-gold selection:text-ink">
       <Navbar />
 
       {/* Hero */}
-      <section className="pt-40 pb-24 bg-[#FDFBF7] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#D4AF37] rounded-full blur-[150px] opacity-15 pointer-events-none" />
+      <section className="pt-40 pb-24 bg-cream relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gold rounded-full blur-[150px] opacity-15 pointer-events-none" />
         <div className="container mx-auto px-6 lg:px-8 text-center max-w-4xl relative z-10">
-          <span className="inline-block py-1 px-4 mb-6 rounded-full border border-[#D4AF37]/50 text-[#8A6D2F] text-[10px] font-bold tracking-[0.3em] uppercase">
+          <span className="inline-block py-1 px-4 mb-6 rounded-full border border-gold/50 text-[#8A6D2F] text-[10px] font-bold tracking-[0.3em] uppercase">
             Tentang Kami
           </span>
-          <h1 className="font-serif text-4xl md:text-6xl font-bold text-[#2A1D15] mb-8 leading-tight">
+          <h1 className="font-serif text-4xl md:text-6xl font-bold text-ink mb-8 leading-tight">
             Menjaga Aksara,
             <br />
-            <span className="text-[#D4AF37]">Merawat Peradaban</span>
+            <span className="text-gold">Merawat Peradaban</span>
           </h1>
-          <p className="text-lg md:text-xl font-light leading-relaxed text-[#543D2A]">
+          <p className="text-lg md:text-xl font-light leading-relaxed text-clay">
             Aksara Abadi lahir dari kegelisahan melihat aksara Nusantara yang perlahan terlupakan.
             Kami percaya teknologi modern bisa menjadi jembatan antara warisan masa lalu dan
             generasi masa depan.
@@ -97,10 +97,10 @@ function TentangPage() {
       </section>
 
       {/* Misi */}
-      <section className="py-24 bg-[#2A1D15] text-[#F9F7F2] relative overflow-hidden border-t border-[#D4AF37]/20">
+      <section className="py-24 bg-ink text-parchment relative overflow-hidden border-t border-gold/20">
         <div className="container mx-auto px-6 lg:px-8 relative z-10">
           <div className="text-center mb-16">
-            <span className="inline-block py-1 px-4 mb-4 rounded-full border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] font-bold tracking-[0.3em] uppercase">
+            <span className="inline-block py-1 px-4 mb-4 rounded-full border border-gold/50 text-gold text-[10px] font-bold tracking-[0.3em] uppercase">
               Misi Kami
             </span>
             <h2 className="font-serif text-3xl md:text-5xl font-bold">Tiga Pilar Utama</h2>
@@ -109,11 +109,11 @@ function TentangPage() {
             {NILAI.map((nilai) => (
               <div
                 key={nilai.judul}
-                className="bg-[#3A2818] border border-[#D4AF37]/20 rounded-xl p-8 hover:border-[#D4AF37]/60 hover:-translate-y-2 transition-all duration-300"
+                className="bg-[#3A2818] border border-gold/20 rounded-xl p-8 hover:border-gold/60 hover:-translate-y-2 transition-all duration-300"
               >
                 <div className="text-4xl mb-6">{nilai.ikon}</div>
-                <h3 className="font-serif text-xl font-bold mb-3 text-[#D4AF37]">{nilai.judul}</h3>
-                <p className="text-[#F9F7F2]/70 font-light leading-relaxed text-sm">
+                <h3 className="font-serif text-xl font-bold mb-3 text-gold">{nilai.judul}</h3>
+                <p className="text-parchment/70 font-light leading-relaxed text-sm">
                   {nilai.deskripsi}
                 </p>
               </div>
@@ -123,15 +123,15 @@ function TentangPage() {
       </section>
 
       {/* Statistik */}
-      <section className="py-20 bg-[#F2ECE4] border-b border-[#E6D9C8]">
+      <section className="py-20 bg-sand border-b border-sand-dark">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center max-w-4xl mx-auto">
             {STATISTIK.map((stat) => (
               <div key={stat.label}>
-                <div className="font-serif text-4xl md:text-5xl font-bold text-[#432818] mb-2">
+                <div className="font-serif text-4xl md:text-5xl font-bold text-bark mb-2">
                   {stat.angka}
                 </div>
-                <div className="text-[#6D5236] text-xs font-bold tracking-widest uppercase">
+                <div className="text-bronze text-xs font-bold tracking-widest uppercase">
                   {stat.label}
                 </div>
               </div>
@@ -141,14 +141,14 @@ function TentangPage() {
       </section>
 
       {/* Tim */}
-      <section className="py-24 bg-[#FDFBF7]">
+      <section className="py-24 bg-cream">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-[#D4AF37] text-xs font-bold tracking-[0.3em] uppercase mb-3 block">
+            <span className="text-gold text-xs font-bold tracking-[0.3em] uppercase mb-3 block">
               Orang-Orang di Balik Layar
             </span>
-            <h2 className="font-serif text-4xl font-bold text-[#2A1D15] mb-4">Tim Kami</h2>
-            <p className="text-[#543D2A] max-w-xl mx-auto">
+            <h2 className="font-serif text-4xl font-bold text-ink mb-4">Tim Kami</h2>
+            <p className="text-clay max-w-xl mx-auto">
               Tiga orang dengan satu tujuan: memastikan aksara Nusantara tetap hidup di era digital.
             </p>
           </div>
@@ -156,26 +156,26 @@ function TentangPage() {
             {TEAM.map((anggota) => (
               <div
                 key={anggota.nama}
-                className="group bg-white border border-[#D4AF37]/20 rounded-xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
+                className="group bg-white border border-gold/20 rounded-xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
               >
-                <div className="h-56 bg-[#F2ECE4] flex items-center justify-center relative">
-                  <div className="w-24 h-24 rounded-full bg-[#432818] border-2 border-[#D4AF37] flex items-center justify-center">
-                    <span className="font-serif text-2xl font-bold text-[#D4AF37]">
+                <div className="h-56 bg-sand flex items-center justify-center relative">
+                  <div className="w-24 h-24 rounded-full bg-bark border-2 border-gold flex items-center justify-center">
+                    <span className="font-serif text-2xl font-bold text-gold">
                       {anggota.inisial}
                     </span>
                   </div>
-                  <span className="absolute bottom-3 text-[10px] text-[#543D2A]/40 tracking-widest uppercase">
+                  <span className="absolute bottom-3 text-[10px] text-clay/40 tracking-widest uppercase">
                     [Foto anggota]
                   </span>
                 </div>
                 <div className="p-6 text-center">
-                  <h3 className="font-serif text-xl font-bold text-[#2A1D15] group-hover:text-[#D4AF37] transition-colors">
+                  <h3 className="font-serif text-xl font-bold text-ink group-hover:text-gold transition-colors">
                     {anggota.nama}
                   </h3>
-                  <p className="text-[#D4AF37] text-xs font-bold tracking-widest uppercase mt-1 mb-4">
+                  <p className="text-gold text-xs font-bold tracking-widest uppercase mt-1 mb-4">
                     {anggota.peran}
                   </p>
-                  <p className="text-[#543D2A] text-sm font-light leading-relaxed">
+                  <p className="text-clay text-sm font-light leading-relaxed">
                     {anggota.bio}
                   </p>
                 </div>
@@ -186,27 +186,27 @@ function TentangPage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24 bg-[#432818] relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-[#D4AF37] rounded-full blur-[120px] opacity-20" />
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#D4AF37] rounded-full blur-[120px] opacity-20" />
+      <section className="py-24 bg-bark relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-64 h-64 bg-gold rounded-full blur-[120px] opacity-20" />
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-gold rounded-full blur-[120px] opacity-20" />
         <div className="container mx-auto px-6 lg:px-8 relative z-10 text-center">
-          <h2 className="font-serif text-3xl md:text-5xl font-bold text-[#F9F7F2] mb-6">
+          <h2 className="font-serif text-3xl md:text-5xl font-bold text-parchment mb-6">
             Ikut Melestarikan Bersama Kami
           </h2>
-          <p className="max-w-2xl mx-auto text-[#F9F7F2]/80 text-lg mb-12 font-light leading-relaxed">
+          <p className="max-w-2xl mx-auto text-parchment/80 text-lg mb-12 font-light leading-relaxed">
             Jelajahi ensiklopedia aksara, atau abadikan namamu dalam prasasti digital yang tak
             terhapuskan.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/ensiklopedia"
-              className="border border-[#D4AF37] text-[#D4AF37] px-10 py-5 rounded-lg font-bold text-sm uppercase tracking-[0.15em] hover:bg-[#D4AF37] hover:text-[#2A1D15] transition-all"
+              className="border border-gold text-gold px-10 py-5 rounded-lg font-bold text-sm uppercase tracking-[0.15em] hover:bg-gold hover:text-ink transition-all"
             >
               Jelajahi Ensiklopedia
             </Link>
             <Link
               to="/prasasti"
-              className="bg-[#D4AF37] text-[#2A1D15] px-10 py-5 rounded-lg font-bold text-sm uppercase tracking-[0.15em] hover:bg-[#F9F7F2] hover:scale-105 transition-all shadow-xl"
+              className="bg-gold text-ink px-10 py-5 rounded-lg font-bold text-sm uppercase tracking-[0.15em] hover:bg-parchment hover:scale-105 transition-all shadow-xl"
             >
               Buat Prasasti
             </Link>
