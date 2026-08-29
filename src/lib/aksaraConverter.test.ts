@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { toJavanese, toSundanese, toMakassar, getUnsupportedLetters } from './aksaraConverter';
+import { toJavanese, toSundanese, toMakassar, toBalinese, getUnsupportedLetters } from './aksaraConverter';
 import { getConversionConfidence } from './aksaraDictionary';
 
 describe('aksaraConverter', () => {
@@ -119,10 +119,11 @@ describe('getUnsupportedLetters - Balinese', () => {
     expect(getUnsupportedLetters('zxvfq', 'balinese')).toEqual(['f', 'q', 'v', 'x', 'z']);
     // no unsupported letters
     expect(getUnsupportedLetters('bakti', 'balinese')).toEqual([]);
+  });
 
   test('katam output', () => {
     const out = toBalinese('katam');
-    console.log('katam ->', out, [...out].map(c => c.codePointAt(0).toString(16).toUpperCase()).join(' '));
+    console.log('katam ->', out, [...out].map(c => c.codePointAt(0)?.toString(16).toUpperCase()).join(' '));
     // Just to see output; no assertion needed
     expect(true).toBe(true);
   });

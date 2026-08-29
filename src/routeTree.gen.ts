@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GaleriRouteImport } from './routes/galeri'
 import { Route as PrasastiRouteImport } from './routes/prasasti'
+import { Route as TentangRouteImport } from './routes/tentang'
 import { Route as EnsiklopediaIndexRouteImport } from './routes/ensiklopedia/index'
 import { Route as EnsiklopediaSlugRouteImport } from './routes/ensiklopedia/$slug'
 
@@ -30,6 +31,11 @@ const PrasastiRoute = PrasastiRouteImport.update({
   path: '/prasasti',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TentangRoute = TentangRouteImport.update({
+  id: '/tentang',
+  path: '/tentang',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EnsiklopediaIndexRoute = EnsiklopediaIndexRouteImport.update({
   id: '/ensiklopedia/',
   path: '/ensiklopedia/',
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/galeri': typeof GaleriRoute
   '/prasasti': typeof PrasastiRoute
+  '/tentang': typeof TentangRoute
   '/ensiklopedia/$slug': typeof EnsiklopediaSlugRoute
   '/ensiklopedia/': typeof EnsiklopediaIndexRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/galeri': typeof GaleriRoute
   '/prasasti': typeof PrasastiRoute
+  '/tentang': typeof TentangRoute
   '/ensiklopedia/$slug': typeof EnsiklopediaSlugRoute
   '/ensiklopedia': typeof EnsiklopediaIndexRoute
 }
@@ -60,20 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/galeri': typeof GaleriRoute
   '/prasasti': typeof PrasastiRoute
+  '/tentang': typeof TentangRoute
   '/ensiklopedia/$slug': typeof EnsiklopediaSlugRoute
   '/ensiklopedia/': typeof EnsiklopediaIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/galeri' | '/prasasti' | '/ensiklopedia/$slug' | '/ensiklopedia/'
+    | '/'
+    | '/galeri'
+    | '/prasasti'
+    | '/tentang'
+    | '/ensiklopedia/$slug'
+    | '/ensiklopedia/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/galeri' | '/prasasti' | '/ensiklopedia/$slug' | '/ensiklopedia'
+  to:
+    | '/'
+    | '/galeri'
+    | '/prasasti'
+    | '/tentang'
+    | '/ensiklopedia/$slug'
+    | '/ensiklopedia'
   id:
     | '__root__'
     | '/'
     | '/galeri'
     | '/prasasti'
+    | '/tentang'
     | '/ensiklopedia/$slug'
     | '/ensiklopedia/'
   fileRoutesById: FileRoutesById
@@ -82,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GaleriRoute: typeof GaleriRoute
   PrasastiRoute: typeof PrasastiRoute
+  TentangRoute: typeof TentangRoute
   EnsiklopediaSlugRoute: typeof EnsiklopediaSlugRoute
   EnsiklopediaIndexRoute: typeof EnsiklopediaIndexRoute
 }
@@ -109,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrasastiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/tentang': {
+      id: '/tentang'
+      path: '/tentang'
+      fullPath: '/tentang'
+      preLoaderRoute: typeof TentangRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ensiklopedia/': {
       id: '/ensiklopedia/'
       path: '/ensiklopedia'
@@ -130,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GaleriRoute: GaleriRoute,
   PrasastiRoute: PrasastiRoute,
+  TentangRoute: TentangRoute,
   EnsiklopediaSlugRoute: EnsiklopediaSlugRoute,
   EnsiklopediaIndexRoute: EnsiklopediaIndexRoute,
 }

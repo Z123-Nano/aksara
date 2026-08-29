@@ -22,6 +22,7 @@ export default function Footer() {
               { to: "/ensiklopedia", label: "Ensiklopedia" },
               { to: "/prasasti", label: "Prasasti" },
               { to: "/galeri", label: "Galeri" },
+              { to: "/tentang", label: "Tentang" },
             ].map((item) => (
               <Link
                 key={item.to}
