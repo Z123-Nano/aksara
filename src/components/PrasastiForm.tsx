@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { toJavanese, toSundanese, toMakassar, getUnsupportedLetters } from "@/lib/aksaraConverter";
 import { savePrasasti } from "@/lib/prasasti.functions";
 import { getLoanwordNote } from "@/lib/loanwordNotes";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 type ScriptType = "javanese" | "sundanese" | "makassar";
 
@@ -153,27 +154,28 @@ export default function PrasastiForm() {
                 </span>
               </p>
 
-              <h2 className="text-[#F9F7F2] text-center leading-normal drop-shadow-md font-serif break-all w-full text-4xl md:text-6xl">
-                {resultAksara ? (
-                  <>
-                    {resultAksara.split('').map((ch, idx) => {
-                      const isUnsupported = /[a-z]/.test(ch) && unsupportedSet.has(ch);
-                      return isUnsupported ? (
-                        <span
-                          key={idx}
-                          className="border-b-2 border-dotted border-[#D4AF37]/50"
-                          title={getLoanwordNote(ch)}
-                        >
-                          {ch}
-                        </span>
-                      ) : (
-                        <>{ch}</>
-                      );
-                    })}
-                  </>
-                ) : "..."}
+              <h2 className="relative text-[#F9F7F2] text-center leading-normal drop-shadow-md font-serif break-all w-full text-4xl md:text-6xl">
+                {resultAksara ? resultAksara : "..."}
+                {unsupportedLetters.length > 0 ? (
+                  <Popover key="unsupported-indicator">
+                    <PopoverTrigger asChild>
+                      <span className="absolute top-0 right-0 flex h-6 w-6 items-center justify-center rounded-sm bg-[D4AF37] text-[432818] text-[10px]">
+                        ⓘ
+                      </span>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-48 rounded-md border bg-popover p-2 text-popover-foreground text-xs">
+                      {Array.from(unsupportedSet).map((letter) => (
+                        <div key={letter} className="mb-2">
+                          <div className="font-medium">{letter}</div>
+                          <div className="text-sm">{getLoanwordNote(letter)}</div>
+                        </div>
+                      ))}
+                    </PopoverContent>
+                  </Popover>
+                ) : null}
               </h2>
-            </div>
+
+                          </div>
           </div>
 
           <button
