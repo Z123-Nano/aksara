@@ -24,6 +24,7 @@ export default function Navbar() {
             { to: "/ensiklopedia", label: "ENSIKLOPEDIA" },
             { to: "/prasasti", label: "BUAT PRASASTI" },
             { to: "/galeri", label: "GALERI" },
+            { to: "/tentang", label: "TENTANG" },
           ].map((item) => (
             <Link
               key={item.to}

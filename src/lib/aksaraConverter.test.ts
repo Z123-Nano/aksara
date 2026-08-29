@@ -119,6 +119,7 @@ describe('getUnsupportedLetters - Balinese', () => {
     expect(getUnsupportedLetters('zxvfq', 'balinese')).toEqual(['f', 'q', 'v', 'x', 'z']);
     // no unsupported letters
     expect(getUnsupportedLetters('bakti', 'balinese')).toEqual([]);
+  });
 
   test('katam output', () => {
     const out = toBalinese('katam');
