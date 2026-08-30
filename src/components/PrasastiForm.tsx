@@ -218,10 +218,14 @@ export default function PrasastiForm() {
             {status === "connecting" && <span className="animate-pulse">Menghubungkan Wallet...</span>}
             {status === "minting" && (
               <span className="flex items-center gap-2">
-                <span className="animate-spin text-xl">⏳</span> Sedang Mengukir...
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> Sedang Mengukir...
               </span>
             )}
-            {status === "success" && "✓ Prasasti Berhasil Disimpan"}
+            {status === "success" && (
+              <span className="flex items-center gap-2">
+                <Check className="h-5 w-5" aria-hidden="true" /> Prasasti Berhasil Disimpan
+              </span>
+            )}
             {status === "idle" && "Abadikan di Blockchain"}
             {status === "error" && "Gagal - Coba Lagi"}
           </button>
