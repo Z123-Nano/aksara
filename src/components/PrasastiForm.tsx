@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { ethers } from "ethers";
+import { Copy, Loader2, Check, Info } from "lucide-react";
+import { toast } from "sonner";
 import { toJavanese, toSundanese, toMakassar, toBalinese, getUnsupportedLetters } from "@/lib/aksaraConverter";
 import { savePrasasti } from "@/lib/prasasti.functions";
 import { getLoanwordNote } from "@/lib/loanwordNotes";
