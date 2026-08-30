@@ -186,8 +186,22 @@ export default function PrasastiForm() {
                 ) : null}
               </h2>
 
-                          </div>
+              {resultAksara ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(resultAksara);
+                    toast.success("Aksara disalin ke papan klip");
+                  }}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/40 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-gold transition-colors hover:bg-gold hover:text-bark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                  Salin Aksara
+                </button>
+              ) : null}
+            </div>
           </div>
+
 
           <button
             onClick={handleMint}
