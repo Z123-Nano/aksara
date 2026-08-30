@@ -175,9 +175,7 @@ function TentangPage() {
                   <p className="text-gold text-xs font-bold tracking-widest uppercase mt-1 mb-4">
                     {anggota.peran}
                   </p>
-                  <p className="text-clay text-sm font-light leading-relaxed">
-                    {anggota.bio}
-                  </p>
+                  <p className="text-clay text-sm font-light leading-relaxed">{anggota.bio}</p>
                 </div>
               </div>
             ))}

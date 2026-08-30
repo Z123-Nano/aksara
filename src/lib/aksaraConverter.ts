@@ -28,21 +28,21 @@ export function getUnsupportedLetters(text: string, script: ScriptKey): string[]
   const lower = text.toLowerCase();
   let table: ScriptTable;
   switch (script) {
-    case 'javanese':
+    case "javanese":
       table = javanese;
       break;
-    case 'sundanese':
+    case "sundanese":
       table = sundanese;
       break;
-    case 'makassar':
+    case "makassar":
       table = makassar;
       break;
-    case 'balinese':
+    case "balinese":
       table = balinese;
       break;
     default:
       const _exhaustive: never = script;
-      table = { consonants: {}, vowelSigns: {}, independentVowels: {}, virama: '' };
+      table = { consonants: {}, vowelSigns: {}, independentVowels: {}, virama: "" };
   }
   const supported = new Set<string>();
   // consonants single letters
@@ -195,8 +195,7 @@ const javanese: ScriptTable = {
   virama: JV_PANGKON,
 };
 
-export const toJavanese = (text: string): string =>
-  transliterate(text, "javanese", javanese);
+export const toJavanese = (text: string): string => transliterate(text, "javanese", javanese);
 
 /* ------------------------------------------------------------------ */
 /* Sundanese (U+1B80..U+1BBF)                                          */
@@ -262,8 +261,7 @@ const sundanese: ScriptTable = {
   virama: SU_PAMAAEH,
 };
 
-export const toSundanese = (text: string): string =>
-  transliterate(text, "sundanese", sundanese);
+export const toSundanese = (text: string): string => transliterate(text, "sundanese", sundanese);
 
 /* ------------------------------------------------------------------ */
 /* Lontara / Makassar (Buginese block U+1A00..U+1A1F)                  */
@@ -369,11 +367,9 @@ const balinese: ScriptTable = {
   virama: "᭄", // Adeg Adeg
 };
 
-export const toBalinese = (text: string): string =>
-  transliterate(text, "balinese", balinese);
+export const toBalinese = (text: string): string => transliterate(text, "balinese", balinese);
 
-export const toMakassar = (text: string): string =>
-  transliterate(text, "makassar", makassar);
+export const toMakassar = (text: string): string => transliterate(text, "makassar", makassar);
 
 /** Debug helper: hex codepoint dump of a string. */
 export const codepoints = (s: string): string[] =>

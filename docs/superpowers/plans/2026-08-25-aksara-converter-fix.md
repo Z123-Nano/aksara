@@ -4,7 +4,8 @@
 
 **Goal:** Fix the aksara transliteration engine in frontend/lib/aksaraConverter.ts by implementing proper syllabifiers for Javanese, Sundanese, and Makassar scripts, adding a dictionary-override layer, and fixing the silent-fail Sanity persistence issue.
 
-**Architecture:** 
+**Architecture:**
+
 1. Replace the flawed string.replace() approach with proper character-by-character syllabifiers that process input greedily, matching longest consonant clusters first, then applying vowel signs in correct Unicode logical order.
 2. Add a dictionary-override layer in frontend/lib/aksaraDictionary.ts that takes precedence over rule-based conversion.
 3. Fix Sanity persistence by adding explicit error handling for missing SANITY_API_TOKEN and dev-time warnings.
@@ -31,12 +32,14 @@
 ### Task 1: Set up Vitest testing framework
 
 **Files:**
+
 - Create: `frontend/vitest.config.ts`
 - Modify: `frontend/package.json`
 - Create: `frontend/lib/aksaraConverter.test.ts`
 
 **Interfaces:**
-- Consumes: 
+
+- Consumes:
 - Produces: vitest configuration and test file structure
 
 - [ ] **Step 1: Install Vitest as dev dependency**
@@ -47,16 +50,16 @@ Expected: Vitest and TypeScript types installed
 - [ ] **Step 2: Create vitest configuration file**
 
 ```typescript
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/test/setup.ts',
+    environment: "jsdom",
+    setupFiles: "./src/test/setup.ts",
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
+      provider: "v8",
+      reporter: ["text", "json", "html"],
     },
   },
 });
@@ -81,11 +84,11 @@ export default defineConfig({
 - [ ] **Step 4: Create basic test file structure for aksaraConverter**
 
 ```typescript
-import { describe, it, expect, vi } from 'vitest';
-import { toJavanese, toSundanese, toMakassar } from './aksaraConverter';
+import { describe, it, expect, vi } from "vitest";
+import { toJavanese, toSundanese, toMakassar } from "./aksaraConverter";
 
-describe('aksaraConverter (basic structure)', () => {
-  it('should import converter functions', () => {
+describe("aksaraConverter (basic structure)", () => {
+  it("should import converter functions", () => {
     expect(toJavanese).toBeDefined();
     expect(toSundanese).toBeDefined();
     expect(toMakassar).toBeDefined();
@@ -108,9 +111,11 @@ git commit -m "feat: set up Vitest testing framework"
 ### Task 2: Fix toJavanese function with proper syllabifier
 
 **Files:**
+
 - Modify: `frontend/lib/aksaraConverter.ts`
 
 **Interfaces:**
+
 - Consumes: String input (text to convert)
 - Produces: Javanese aksara string output
 
@@ -139,7 +144,7 @@ git commit -m "feat: set up Vitest testing framework"
 // u (suku): ◌ꦸ (U+A9B8) - POSTFIX
 // a (pepet): ◌ꦼ (U+A9BC) - POSTFIX (rare)
 // pangkon (virama): ◌꧀ (U+A9C0)
-// 
+//
 // Note: 'ba' is ꦧ (U+A9A7), NOT ꦛ (U+A99B) which is 'tha'
 ```
 
@@ -147,52 +152,68 @@ git commit -m "feat: set up Vitest testing framework"
 
 ```typescript
 export const toJavanese = (text: string): string => {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   const input = text.toLowerCase().trim();
-  let result = '';
+  let result = "";
   let i = 0;
-  
+
   // Define consonant clusters (longest first for greedy matching)
-  const clusters = ['dh', 'th', 'ny', 'ng'];
-  
+  const clusters = ["dh", "th", "ny", "ng"];
+
   // Define base consonants
   const consonants: Record<string, string> = {
-    'k': 'ꦏ', 'g': 'ꦒ', 'ng': 'ꦔ', 'c': 'ꦕ', 'j': 'ꦗ', 'ny': 'ꦚ',
-    't': 'ꦠ', 'd': 'ꦢ', 'n': 'ꦤ', 'p': 'ꦥ', 'b': 'ꦧ', 'm': 'ꦩ',
-    'y': 'ꦪ', 'r': 'ꦫ', 'l': 'ꦭ', 'w': 'ꦮ', 's': 'ꦱ', 'h': 'ꦲ',
+    k: "ꦏ",
+    g: "ꦒ",
+    ng: "ꦔ",
+    c: "ꦕ",
+    j: "ꦗ",
+    ny: "ꦚ",
+    t: "ꦠ",
+    d: "ꦢ",
+    n: "ꦤ",
+    p: "ꦥ",
+    b: "ꦧ",
+    m: "ꦩ",
+    y: "ꦪ",
+    r: "ꦫ",
+    l: "ꦭ",
+    w: "ꦮ",
+    s: "ꦱ",
+    h: "ꦲ",
     // Add cluster mappings
-    'dh': 'ꦝ', 'th': 'ꦛ'
+    dh: "ꦝ",
+    th: "ꦛ",
   };
-  
+
   // Define vowel signs with their Unicode codepoints and positioning
   // Format: [vowelChar, { prefix: boolean, glyph: string }]
   const vowelSigns: Record<string, [boolean, string]> = {
-    'a': [false, ''], // inherent vowel (no sign)
-    'i': [false, 'ꦶ'], // wulu - POSTFIX (U+A9B6)
-    'u': [false, 'ꦸ'], // suku - POSTFIX (U+A9B8)
-    'e': [true, 'ꦺ'],  // taling - PREFIX (U+A9BA)
-    'o': [true, 'ꦺꦴ'], // taling+tarung - PREFIX (U+A9BA U+A9B4)
+    a: [false, ""], // inherent vowel (no sign)
+    i: [false, "ꦶ"], // wulu - POSTFIX (U+A9B6)
+    u: [false, "ꦸ"], // suku - POSTFIX (U+A9B8)
+    e: [true, "ꦺ"], // taling - PREFIX (U+A9BA)
+    o: [true, "ꦺꦴ"], // taling+tarung - PREFIX (U+A9BA U+A9B4)
     // Optional vowels
-    'ê': [false, 'ꦼ'], // pepet - POSTFIX (U+A9BC)
+    ê: [false, "ꦼ"], // pepet - POSTFIX (U+A9BC)
   };
-  
+
   // Define pangkon (virama) for dead consonants
-  const pangkon = '꧀'; // U+A9C0
-  
+  const pangkon = "꧀"; // U+A9C0
+
   while (i < input.length) {
     // Skip whitespace and preserve it
-    if (input[i] === ' ') {
-      result += ' ';
+    if (input[i] === " ") {
+      result += " ";
       i++;
       continue;
     }
-    
+
     // Try to match longest consonant cluster first
     let matched = false;
-    let consonant = '';
+    let consonant = "";
     let clusterLength = 0;
-    
+
     // Check for clusters (2-char first, then 3-char if needed)
     for (const cluster of clusters) {
       if (input.startsWith(cluster, i)) {
@@ -202,7 +223,7 @@ export const toJavanese = (text: string): string => {
         break;
       }
     }
-    
+
     // If no cluster matched, try single consonant
     if (!matched && i < input.length) {
       const singleChar = input[i];
@@ -212,14 +233,14 @@ export const toJavanese = (text: string): string => {
         matched = true;
       }
     }
-    
+
     // If still no match, pass through the character
     if (!matched) {
       result += input[i];
       i++;
       continue;
     }
-    
+
     // Get the base consonant glyph
     let baseGlyph = consonants[consonant];
     if (!baseGlyph) {
@@ -228,26 +249,26 @@ export const toJavanese = (text: string): string => {
       i += clusterLength;
       continue;
     }
-    
+
     // Look ahead for vowel
-    let vowel = 'a'; // default inherent vowel
+    let vowel = "a"; // default inherent vowel
     let vowelLength = 0;
-    
+
     if (i + clusterLength < input.length) {
       const nextChar = input[i + clusterLength];
       // Check for vowel signs
-      if (['a', 'i', 'u', 'e', 'o', 'ê'].includes(nextChar)) {
+      if (["a", "i", "u", "e", "o", "ê"].includes(nextChar)) {
         vowel = nextChar;
         vowelLength = 1;
-        
+
         // Handle diphthongs (though Javanese doesn't really have these in Latin)
         // For 'o' we already handle it as a single vowel
       }
     }
-    
+
     // Apply vowel sign according to positioning rules
     const [isPrefix, vowelGlyph] = vowelSigns[vowel];
-    
+
     if (isPrefix) {
       // Prefix vowels come before the consonant
       result += vowelGlyph + baseGlyph;
@@ -258,15 +279,15 @@ export const toJavanese = (text: string): string => {
       // No vowel sign (inherent 'a')
       result += baseGlyph;
     }
-    
+
     // Move position past consonant and vowel
     i += clusterLength + vowelLength;
-    
+
     // Check if next character is a consonant that should form a conjunct
     // For now, we'll handle basic pangkon for word-final consonants
     // More complex conjunct handling would go here for mid-word clusters
   }
-  
+
   return result;
 };
 ```
@@ -281,14 +302,14 @@ export const toJavanese = (text: string): string => {
 // n: ꦤ (U+A9A4), p: ꦥ (U+A9A5), b: ꦧ (U+A9A7), m: ꦩ (U+A9A9)
 // y: ꦪ (U+A9AA), r: ꦫ (U+A9AB), l: ꦭ (U+A9AD), w: ꦮ (U+A9AE)
 // s: ꦱ (U+A9B1), h: ꦲ (U+A9B2), dh: ꦝ (U+A99D), th: ꦛ (U+A99B)
-// 
+//
 // Vowel signs:
 // i: ꦶ (U+A9B6) - wulu (postfix)
 // u: ꦸ (U+A9B8) - suku (postfix)
 // e: ꦺ (U+A9BA) - taling (prefix)
 // o: ꦺꦴ (U+A9BA U+A9B4) - taling+tarung (prefix)
 // ê: ꦼ (U+A9BC) - pepet (postfix)
-// 
+//
 // Diacritics:
 // pangkon: ꧀ (U+A9C0) - virama for dead consonants
 ```
@@ -308,9 +329,11 @@ git commit -m "feat: fix toJavanese function with proper syllabifier"
 ### Task 3: Fix toSundanese function with proper syllabifier
 
 **Files:**
+
 - Modify: `frontend/lib/aksaraConverter.ts`
 
 **Interfaces:**
+
 - Consumes: String input (text to convert)
 - Produces: Sundanese aksara string output
 
@@ -336,12 +359,12 @@ git commit -m "feat: fix toJavanese function with proper syllabifier"
 // o: ᮧ (U+1B67) - panolong
 // e: ᮩ (U+1B69) - paneuleung
 // eu: ᮵ (U+1B75) - panyuku
-// 
+//
 // Independent vowels (at start of word):
 // a: ᮃ (U+1B83), i: ᮄ (U+1B84), u: ᮅ (U+1B85)
 // é: ᮈ (U+1B88), o: ᮇ (U+1B87), e: ᮆ (U+1B86)
 // eu: ᮉ (U+1B89)
-// 
+//
 // Note: Need to verify exact positioning - most are postfix but need confirmation
 ```
 
@@ -349,55 +372,77 @@ git commit -m "feat: fix toJavanese function with proper syllabifier"
 
 ```typescript
 export const toSundanese = (text: string): string => {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   const input = text.toLowerCase().trim();
-  let result = '';
+  let result = "";
   let i = 0;
-  
+
   // Define consonant clusters (longest first for greedy matching)
-  const clusters = ['kh', 'ng', 'ny', 'sy'];
-  
+  const clusters = ["kh", "ng", "ny", "sy"];
+
   // Define base consonants
   const consonants: Record<string, string> = {
-    'k': 'ᮊ', 'g': 'ᮌ', 'c': 'ᮎ', 'j': 'ᮏ',
-    't': 'ᮒ', 'd': 'ᮓ', 'n': 'ᮔ', 'p': 'ᮕ', 
-    'b': 'ᮘ', 'm': 'ᮙ', 'y': 'ᮚ', 'r': 'ᮛ',
-    'l': 'ᮜ', 'w': 'ᮝ', 's': 'ᮞ', 'h': 'ᮠ',
-    'f': 'ᮖ', 'v': 'ᮗ', 'z': 'ᮟ',
+    k: "ᮊ",
+    g: "ᮌ",
+    c: "ᮎ",
+    j: "ᮏ",
+    t: "ᮒ",
+    d: "ᮓ",
+    n: "ᮔ",
+    p: "ᮕ",
+    b: "ᮘ",
+    m: "ᮙ",
+    y: "ᮚ",
+    r: "ᮛ",
+    l: "ᮜ",
+    w: "ᮝ",
+    s: "ᮞ",
+    h: "ᮠ",
+    f: "ᮖ",
+    v: "ᮗ",
+    z: "ᮟ",
     // Add cluster mappings
-    'kh': 'ᮭ', 'ng': 'ᮍ', 'ny': 'ᮑ', 'sy': 'ᮯ'
+    kh: "ᮭ",
+    ng: "ᮍ",
+    ny: "ᮑ",
+    sy: "ᮯ",
   };
-  
+
   // Define independent vowels (for word beginnings)
   const independentVowels: Record<string, string> = {
-    'a': 'ᮃ', 'i': 'ᮄ', 'u': 'ᮅ', 'ae': 'ᮈ', 
-    'o': 'ᮇ', 'e': 'ᮆ', 'eu': 'ᮉ'
+    a: "ᮃ",
+    i: "ᮄ",
+    u: "ᮅ",
+    ae: "ᮈ",
+    o: "ᮇ",
+    e: "ᮆ",
+    eu: "ᮉ",
   };
-  
+
   // Define dependent vowel signs (rarangkén) with positioning
   // Format: [vowelChar, { prefix: boolean, glyph: string }]
   // Based on research: most Sundanese vowel signs are postfix
   const vowelSigns: Record<string, [boolean, string]> = {
-    'a': [false, ''], // inherent vowel (no sign)
-    'i': [false, '᮪'], // panghulu - POSTFIX (U+1B6A) 
-    'u': [false, 'ᮮ'], // pamaséng - POSTFIX (U+1B6E)
-    'ae': [false, 'ᮨ'], // pamepet - POSTFIX (U+1B68)
-    'o': [false, 'ᮧ'], // panolong - POSTFIX (U+1B67)
-    'e': [false, 'ᮩ'], // paneuleung - POSTFIX (U+1B69)
-    'eu': [false, '᮵'], // panyuku - POSTFIX (U+1B75)
+    a: [false, ""], // inherent vowel (no sign)
+    i: [false, "᮪"], // panghulu - POSTFIX (U+1B6A)
+    u: [false, "ᮮ"], // pamaséng - POSTFIX (U+1B6E)
+    ae: [false, "ᮨ"], // pamepet - POSTFIX (U+1B68)
+    o: [false, "ᮧ"], // panolong - POSTFIX (U+1B67)
+    e: [false, "ᮩ"], // paneuleung - POSTFIX (U+1B69)
+    eu: [false, "᮵"], // panyuku - POSTFIX (U+1B75)
   };
-  
+
   while (i < input.length) {
     // Skip whitespace and preserve it
-    if (input[i] === ' ') {
-      result += ' ';
+    if (input[i] === " ") {
+      result += " ";
       i++;
       continue;
     }
-    
+
     // Handle independent vowels at start of word
-    let isStartOfWord = (i === 0 || input[i-1] === ' ');
+    let isStartOfWord = i === 0 || input[i - 1] === " ";
     if (isStartOfWord) {
       // Check for 2-char independent vowels first
       if (i + 1 < input.length) {
@@ -416,12 +461,12 @@ export const toSundanese = (text: string): string => {
         continue;
       }
     }
-    
+
     // Try to match longest consonant cluster first
     let matched = false;
-    let consonant = '';
+    let consonant = "";
     let clusterLength = 0;
-    
+
     // Check for clusters (2-char first)
     for (const cluster of clusters) {
       if (input.startsWith(cluster, i)) {
@@ -431,7 +476,7 @@ export const toSundanese = (text: string): string => {
         break;
       }
     }
-    
+
     // If no cluster matched, try single consonant
     if (!matched && i < input.length) {
       const singleChar = input[i];
@@ -441,14 +486,14 @@ export const toSundanese = (text: string): string => {
         matched = true;
       }
     }
-    
+
     // If still no match, pass through the character
     if (!matched) {
       result += input[i];
       i++;
       continue;
     }
-    
+
     // Get the base consonant glyph
     let baseGlyph = consonants[consonant];
     if (!baseGlyph) {
@@ -457,21 +502,29 @@ export const toSundanese = (text: string): string => {
       i += clusterLength;
       continue;
     }
-    
+
     // Look ahead for vowel
-    let vowel = 'a'; // default inherent vowel
+    let vowel = "a"; // default inherent vowel
     let vowelLength = 0;
-    
+
     if (i + clusterLength < input.length) {
       const nextChar = input[i + clusterLength];
       // Check for vowel signs
-      if (['a', 'i', 'u', 'ae', 'o', 'e', 'eu'].includes(nextChar)) {
+      if (["a", "i", "u", "ae", "o", "e", "eu"].includes(nextChar)) {
         // Handle 2-char vowels first
-        if (nextChar === 'a' && i + clusterLength + 1 < input.length && input[i + clusterLength + 1] === 'e') {
-          vowel = 'ae';
+        if (
+          nextChar === "a" &&
+          i + clusterLength + 1 < input.length &&
+          input[i + clusterLength + 1] === "e"
+        ) {
+          vowel = "ae";
           vowelLength = 2;
-        } else if (nextChar === 'e' && i + clusterLength + 1 < input.length && input[i + clusterLength + 1] === 'u') {
-          vowel = 'eu';
+        } else if (
+          nextChar === "e" &&
+          i + clusterLength + 1 < input.length &&
+          input[i + clusterLength + 1] === "u"
+        ) {
+          vowel = "eu";
           vowelLength = 2;
         } else {
           vowel = nextChar;
@@ -479,10 +532,10 @@ export const toSundanese = (text: string): string => {
         }
       }
     }
-    
+
     // Apply vowel sign according to positioning rules
     const [isPrefix, vowelGlyph] = vowelSigns[vowel];
-    
+
     if (isPrefix) {
       // Prefix vowels come before the consonant
       result += vowelGlyph + baseGlyph;
@@ -493,11 +546,11 @@ export const toSundanese = (text: string): string => {
       // No vowel sign (inherent 'a')
       result += baseGlyph;
     }
-    
+
     // Move position past consonant and vowel
     i += clusterLength + vowelLength;
   }
-  
+
   return result;
 };
 ```
@@ -513,12 +566,12 @@ export const toSundanese = (text: string): string => {
 // l: ᮜ (U+1B9C), w: ᮝ (U+1B9D), s: ᮞ (U+1B9E), h: ᮠ (U+1BA0)
 // f: ᮖ (U+1B96), v: ᮗ (U+1B97), z: ᮟ (U+1B9F)
 // kh: ᮭ (U+1BAD), ng: ᮍ (U+1B8D), ny: ᮑ (U+1B91), sy: ᮯ (U+1BAF)
-// 
+//
 // Independent vowels:
 // a: ᮃ (U+1B83), i: ᮄ (U+1B84), u: ᮅ (U+1B85)
 // ae: ᮈ (U+1B88), o: ᮇ (U+1B87), e: ᮆ (U+1B86)
 // eu: ᮉ (U+1B89)
-// 
+//
 // Dependent vowel signs (rarangkén):
 // i: ᮪ (U+1B6A) - panghulu
 // u: ᮮ (U+1B6E) - pamaséng
@@ -526,7 +579,7 @@ export const toSundanese = (text: string): string => {
 // o: ᮧ (U+1B67) - panolong
 // e: ᮩ (U+1B69) - paneuleung
 // eu: ᮵ (U+1B75) - panyuku
-// 
+//
 // Note: All Sundanese dependent vowel signs appear to be postfix based on Unicode charts
 ```
 
@@ -545,7 +598,9 @@ export const toSundanese = (text: string): string => {
 
 ```markdown
 # VERIFICATION REQUIRED
+
 Before proceeding, verify the following with expert sources or native speakers:
+
 1. Whether panghulu (᮪) is truly postfix or can be prepended in some contexts
 2. Exact behavior of vowel signs in conjunct consonants
 3. Confirm that all Sundanese dependent vowel signs are postfix
@@ -566,9 +621,11 @@ git commit -m "feat: fix toSundanese function with proper syllabifier"
 ### Task 4: Fix toMakassar function with proper syllabifier
 
 **Files:**
+
 - Modify: `frontend/lib/aksaraConverter.ts`
 
 **Interfaces:**
+
 - Consumes: String input (text to convert)
 - Produces: Makassar/Lontara aksara string output
 
@@ -592,7 +649,7 @@ git commit -m "feat: fix toSundanese function with proper syllabifier"
 // u: ᨘ (U+1A18)
 // e: ᨙ (U+1A19)
 // o: ᨚ (U+1A1A)
-// 
+//
 // Note: Lontara has an inherent vowel /a/ that is not written
 // Vowel signs are typically placed above or below the consonant
 // In Unicode logical order, they typically follow the consonant
@@ -603,50 +660,66 @@ git commit -m "feat: fix toSundanese function with proper syllabifier"
 
 ```typescript
 export const toMakassar = (text: string): string => {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   const input = text.toLowerCase().trim();
-  let result = '';
+  let result = "";
   let i = 0;
-  
+
   // Define consonant clusters (longest first for greedy matching)
   // Based on the original code, it had some cluster mappings
-  const clusters = ['ngka', 'mpa', 'nra', 'nca', 'ng', 'ny'];
-  
+  const clusters = ["ngka", "mpa", "nra", "nca", "ng", "ny"];
+
   // Define base consonants
   const consonants: Record<string, string> = {
-    'k': 'ᨀ', 'g': 'ᨁ', 'p': 'ᨄ', 'b': 'ᨅ', 'm': 'ᨆ', 
-    't': 'ᨈ', 'd': 'ᨉ', 'n': 'ᨊ', 'c': 'ᨌ', 'j': 'ᨍ', 
-    'y': 'ᨐ', 'r': 'ᨑ', 'l': 'ᨒ', 'w': 'ᨓ', 's': 'ᨔ', 
-    'h': 'ᨖ',
+    k: "ᨀ",
+    g: "ᨁ",
+    p: "ᨄ",
+    b: "ᨅ",
+    m: "ᨆ",
+    t: "ᨈ",
+    d: "ᨉ",
+    n: "ᨊ",
+    c: "ᨌ",
+    j: "ᨍ",
+    y: "ᨐ",
+    r: "ᨑ",
+    l: "ᨒ",
+    w: "ᨓ",
+    s: "ᨔ",
+    h: "ᨖ",
     // Add cluster mappings from original
-    'ngka': 'ᨃ', 'mpa': 'ᨇ', 'nra': 'ᨋ', 'nca': 'ᨏ', 
-    'ng': 'ᨂ', 'ny': 'ᨎ'
+    ngka: "ᨃ",
+    mpa: "ᨇ",
+    nra: "ᨋ",
+    nca: "ᨏ",
+    ng: "ᨂ",
+    ny: "ᨎ",
   };
-  
+
   // Define vowel signs with positioning
   // Format: [vowelChar, { prefix: boolean, glyph: string }]
   const vowelSigns: Record<string, [boolean, string]> = {
-    'a': [false, ''], // inherent vowel (not written in Lontara)
-    'i': [false, 'ᨗ'], // U+1A17
-    'u': [false, 'ᨘ'], // U+1A18
-    'e': [false, 'ᨙ'], // U+1A19
-    'o': [false, 'ᨚ'], // U+1A1A
+    a: [false, ""], // inherent vowel (not written in Lontara)
+    i: [false, "ᨗ"], // U+1A17
+    u: [false, "ᨘ"], // U+1A18
+    e: [false, "ᨙ"], // U+1A19
+    o: [false, "ᨚ"], // U+1A1A
   };
-  
+
   while (i < input.length) {
     // Skip whitespace and preserve it
-    if (input[i] === ' ') {
-      result += ' ';
+    if (input[i] === " ") {
+      result += " ";
       i++;
       continue;
     }
-    
+
     // Try to match longest consonant cluster first
     let matched = false;
-    let consonant = '';
+    let consonant = "";
     let clusterLength = 0;
-    
+
     // Check for clusters (longest first)
     for (const cluster of [...clusters].sort((a, b) => b.length - a.length)) {
       if (input.startsWith(cluster, i)) {
@@ -656,7 +729,7 @@ export const toMakassar = (text: string): string => {
         break;
       }
     }
-    
+
     // If no cluster matched, try single consonant
     if (!matched && i < input.length) {
       const singleChar = input[i];
@@ -666,14 +739,14 @@ export const toMakassar = (text: string): string => {
         matched = true;
       }
     }
-    
+
     // If still no match, pass through the character
     if (!matched) {
       result += input[i];
       i++;
       continue;
     }
-    
+
     // Get the base consonant glyph
     let baseGlyph = consonants[consonant];
     if (!baseGlyph) {
@@ -682,23 +755,23 @@ export const toMakassar = (text: string): string => {
       i += clusterLength;
       continue;
     }
-    
+
     // Look ahead for vowel
-    let vowel = 'a'; // default inherent vowel
+    let vowel = "a"; // default inherent vowel
     let vowelLength = 0;
-    
+
     if (i + clusterLength < input.length) {
       const nextChar = input[i + clusterLength];
       // Check for vowel signs
-      if (['a', 'i', 'u', 'e', 'o'].includes(nextChar)) {
+      if (["a", "i", "u", "e", "o"].includes(nextChar)) {
         vowel = nextChar;
         vowelLength = 1;
       }
     }
-    
+
     // Apply vowel sign according to positioning rules
     const [isPrefix, vowelGlyph] = vowelSigns[vowel];
-    
+
     if (isPrefix) {
       // Prefix vowels come before the consonant
       result += vowelGlyph + baseGlyph;
@@ -709,15 +782,15 @@ export const toMakassar = (text: string): string => {
       // No vowel sign (inherent 'a') - not written in Lontara
       result += baseGlyph;
     }
-    
+
     // Move position past consonant and vowel
     i += clusterLength + vowelLength;
-    
+
     // Handle virama/pangkon equivalent for dead consonants
     // Lontara often doesn't write virama explicitly, but we can add it
     // for clarity if needed
   }
-  
+
   return result;
 };
 ```
@@ -731,17 +804,17 @@ export const toMakassar = (text: string): string => {
 // t: ᨈ (U+1A08), d: ᨉ (U+1A09), n: ᨊ (U+1A0A), c: ᨌ (U+1A0C), j: ᨍ (U+1A0D)
 // y: ᨐ (U+1A10), r: ᨑ (U+1A11), l: ᨒ (U+1A12), w: ᨓ (U+1A13), s: ᨔ (U+1A14)
 // h: ᨖ (U+1A16)
-// 
+//
 // Clusters:
 // ngka: ᨃ (U+1A03), mpa: ᨇ (U+1A07), nra: ᨋ (U+1A0B), nca: ᨏ (U+1A0F)
 // ng: ᨂ (U+1A02), ny: ᨎ (U+1A0E)
-// 
+//
 // Vowel signs:
 // i: ᨗ (U+1A17)
 // u: ᨘ (U+1A18)
 // e: ᨙ (U+1A19)
 // o: ᨚ (U+1A1A)
-// 
+//
 // Note: Lontara/Makassar has an inherent vowel /a/ that is not written
 // Vowel signs typically follow the consonant in Unicode logical order
 // Need to verify if any vowel signs are prefix in Lontara
@@ -762,7 +835,9 @@ export const toMakassar = (text: string): string => {
 
 ```markdown
 # VERIFICATION REQUIRED
+
 Before proceeding, verify the following with expert sources or Unicode documentation:
+
 1. Whether any vowel signs are prefix (appear before consonant)
 2. Exact behavior with consonant clusters
 3. Handling of virama/pangkon equivalent
@@ -784,10 +859,12 @@ git commit -m "feat: fix toMakassar function with proper syllabifier"
 ### Task 5: Create dictionary-override layer
 
 **Files:**
+
 - Create: `frontend/lib/aksaraDictionary.ts`
 - Modify: `frontend/lib/aksaraConverter.ts` (to use dictionary)
 
 **Interfaces:**
+
 - Consumes: Word strings and script types
 - Produces: Dictionary lookup results and conversion confidence
 
@@ -796,50 +873,56 @@ git commit -m "feat: fix toMakassar function with proper syllabifier"
 ```typescript
 // Dictionary of known word conversions for override
 // Format: word -> { javanese: '...', sundanese: '...', makassar: '...' }
-export const aksaraDictionary: Record<string, Record<'javanese' | 'sundanese' | 'makassar', string>> = {
+export const aksaraDictionary: Record<
+  string,
+  Record<"javanese" | "sundanese" | "makassar", string>
+> = {
   // Javanese examples
-  'budi': {
-    javanese: 'ꦧꦸꦝꦶ',
-    sundanese: 'ᮘᮤᮓ᮪', 
-    makassar: 'ᨅᨘᨊᨗ'
+  budi: {
+    javanese: "ꦧꦸꦝꦶ",
+    sundanese: "ᮘᮤᮓ᮪",
+    makassar: "ᨅᨘᨊᨗ",
   },
-  'santoso': {
-    javanese: 'ꦱꦤꦠꦺꦱꦾ',
-    sundanese: 'ᮞᮔᮒᮺᮞᮧᮍ',
-    makassar: 'ᨔᮊᨈᮺᨔᮧᨚ'
+  santoso: {
+    javanese: "ꦱꦤꦠꦺꦱꦾ",
+    sundanese: "ᮞᮔᮒᮺᮞᮧᮍ",
+    makassar: "ᨔᮊᨈᮺᨔᮧᨚ",
   },
   // 'jakarta': {  // NEEDS VERIFICATION - REMOVED CORRUPTED ENTRY
   //   javanese: 'TODO_VERIFY_JAVANESE',
-  //   sundanese: 'TODO_VERIFY_SUNDANESE', 
+  //   sundanese: 'TODO_VERIFY_SUNDANESE',
   //   makassar: 'TODO_VERIFY_MAKASSAR'
   // },
   // Add more examples as needed
-  'jawa': {
-    javanese: 'ꦗꦮ',
-    sundanese: 'ᮏᮝ',
-    makassar: 'ᨍᨓ'
+  jawa: {
+    javanese: "ꦗꦮ",
+    sundanese: "ᮏᮝ",
+    makassar: "ᨍᨓ",
   },
-  'sunda': {
-    javanese: 'ꦱꦸꦤꦝꦏꦼ',
-    sundanese: 'ᮞᮥᮔ᮪ᮓᮨ',
-    makassar: 'ᨔᨘᮔᨉᨊᮌ'
+  sunda: {
+    javanese: "ꦱꦸꦤꦝꦏꦼ",
+    sundanese: "ᮞᮥᮔ᮪ᮓᮨ",
+    makassar: "ᨔᨘᮔᨉᨊᮌ",
   },
-  'makassar': {
-    javanese: 'ꦩꦏꦱꦱꦂ',
-    sundanese: 'ᮙᨀᮓᨀᮓᨀ',
-    makassar: 'ᨆᨀᨔᨔᨑ'
-  }
+  makassar: {
+    javanese: "ꦩꦏꦱꦱꦂ",
+    sundanese: "ᮙᨀᮓᨀᮓᨀ",
+    makassar: "ᨆᨀᨔᨔᨑ",
+  },
 };
 
 // Export the dictionary for use in converters
 export { aksaraDictionary };
 
 // Helper function to get conversion confidence
-export function getConversionConfidence(word: string, script: 'javanese' | 'sundanese' | 'makassar'): 'verified' | 'rule-based' {
+export function getConversionConfidence(
+  word: string,
+  script: "javanese" | "sundanese" | "makassar",
+): "verified" | "rule-based" {
   const cleanWord = word.toLowerCase().trim();
-  return aksaraDictionary[cleanWord] && aksaraDictionary[cleanWord][script] !== undefined 
-    ? 'verified' 
-    : 'rule-based';
+  return aksaraDictionary[cleanWord] && aksaraDictionary[cleanWord][script] !== undefined
+    ? "verified"
+    : "rule-based";
 }
 ```
 
@@ -847,26 +930,28 @@ export function getConversionConfidence(word: string, script: 'javanese' | 'sund
 
 ```typescript
 // Import the dictionary and helper function
-import { aksaraDictionary, getConversionConfidence } from './aksaraDictionary';
+import { aksaraDictionary, getConversionConfidence } from "./aksaraDictionary";
 
 export const toJavanese = (text: string): string => {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   // Split into words, process each word, preserve whitespace
   const words = text.split(/(\s+)/); // Split on whitespace, keeping delimiters
-  return words.map(word => {
-    // If it's whitespace, return as-is
-    if (/^\s+$/.test(word)) return word;
-    
-    // Check dictionary first
-    const cleanWord = word.toLowerCase();
-    if (aksaraDictionary[cleanWord] && aksaraDictionary[cleanWord].javanese !== undefined) {
-      return aksaraDictionary[cleanWord].javanese;
-    }
-    
-    // Fall back to rule-based syllabifier
-    return toJavaneseRuleBased(word);
-  }).join('');
+  return words
+    .map((word) => {
+      // If it's whitespace, return as-is
+      if (/^\s+$/.test(word)) return word;
+
+      // Check dictionary first
+      const cleanWord = word.toLowerCase();
+      if (aksaraDictionary[cleanWord] && aksaraDictionary[cleanWord].javanese !== undefined) {
+        return aksaraDictionary[cleanWord].javanese;
+      }
+
+      // Fall back to rule-based syllabifier
+      return toJavaneseRuleBased(word);
+    })
+    .join("");
 };
 
 // Keep the original implementation as a helper function
@@ -876,19 +961,21 @@ const toJavaneseRuleBased = (text: string): string => {
 
 // Similar modifications for toSundanese and toMakassar
 export const toSundanese = (text: string): string => {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   const words = text.split(/(\s+)/);
-  return words.map(word => {
-    if (/^\s+$/.test(word)) return word;
-    
-    const cleanWord = word.toLowerCase();
-    if (aksaraDictionary[cleanWord] && aksaraDictionary[cleanWord].sundanese !== undefined) {
-      return aksaraDictionary[cleanWord].sundanese;
-    }
-    
-    return toSundaneseRuleBased(word);
-  }).join('');
+  return words
+    .map((word) => {
+      if (/^\s+$/.test(word)) return word;
+
+      const cleanWord = word.toLowerCase();
+      if (aksaraDictionary[cleanWord] && aksaraDictionary[cleanWord].sundanese !== undefined) {
+        return aksaraDictionary[cleanWord].sundanese;
+      }
+
+      return toSundaneseRuleBased(word);
+    })
+    .join("");
 };
 
 const toSundaneseRuleBased = (text: string): string => {
@@ -896,19 +983,21 @@ const toSundaneseRuleBased = (text: string): string => {
 };
 
 export const toMakassar = (text: string): string => {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   const words = text.split(/(\s+)/);
-  return words.map(word => {
-    if (/^\s+$/.test(word)) return word;
-    
-    const cleanWord = word.toLowerCase();
-    if (aksaraDictionary[cleanWord] && aksaraDictionary[cleanWord].makassar !== undefined) {
-      return aksaraDictionary[cleanWord].makassar;
-    }
-    
-    return toMakassarRuleBased(word);
-  }).join('');
+  return words
+    .map((word) => {
+      if (/^\s+$/.test(word)) return word;
+
+      const cleanWord = word.toLowerCase();
+      if (aksaraDictionary[cleanWord] && aksaraDictionary[cleanWord].makassar !== undefined) {
+        return aksaraDictionary[cleanWord].makassar;
+      }
+
+      return toMakassarRuleBased(word);
+    })
+    .join("");
 };
 
 const toMakassarRuleBased = (text: string): string => {
@@ -921,35 +1010,35 @@ const toMakassarRuleBased = (text: string): string => {
 ```typescript
 // Add more entries to the dictionary for better coverage
 // These should be verified correct examples
-aksaraDictionary['nama'] = {
-  javanese: 'ꦤꦩ',
-  sundanese: 'ᮔ᮪',
-  makassar: 'ᨊᨕ'
+aksaraDictionary["nama"] = {
+  javanese: "ꦤꦩ",
+  sundanese: "ᮔ᮪",
+  makassar: "ᨊᨕ",
 };
 
-aksaraDictionary['aksara'] = {
-  javanese: 'ꦲꦏ꧀ꦱꦫ',
-  sundanese: 'ᮃᮊ᮪ᮞᮦ',
-  makassar: 'ᨲᨀ᮪ᨔᨓ'
+aksaraDictionary["aksara"] = {
+  javanese: "ꦲꦏ꧀ꦱꦫ",
+  sundanese: "ᮃᮊ᮪ᮞᮦ",
+  makassar: "ᨲᨀ᮪ᨔᨓ",
 };
 
-aksaraDictionary['converter'] = {
-  javanese: 'ꦕꦺꦴꦤ꧀ꦮꦼꦂꦠꦺꦴ',
-  sundanese: 'ᮎᮺᮔ᮪ᮏ᮪ᮝᮨᮔ᮪',
-  makassar: 'ᨎᮺᨈᮺ᨜᮪ᨔ᮪ᨈᮺᨏᮺ'
+aksaraDictionary["converter"] = {
+  javanese: "ꦕꦺꦴꦤ꧀ꦮꦼꦂꦠꦺꦴ",
+  sundanese: "ᮎᮺᮔ᮪ᮏ᮪ᮝᮨᮔ᮪",
+  makassar: "ᨎᮺᨈᮺ᨜᮪ᨔ᮪ᨈᮺᨏᮺ",
 };
 
 // Add common Indonesian names and words
-aksaraDictionary['andi'] = {
-  javanese: 'ꦲꦤꦢꦶ',
-  sundanese: 'ᮃᮔ᮪ᮓᦶ',
-  makassar: 'ᨲᨔᨑᨗ'
+aksaraDictionary["andi"] = {
+  javanese: "ꦲꦤꦢꦶ",
+  sundanese: "ᮃᮔ᮪ᮓᦶ",
+  makassar: "ᨲᨔᨑᨗ",
 };
 
-aksaraDictionary['budi'] = {
-  javanese: 'ꦧꦸꦝꦶ',
-  sundanese: 'ᮘᮤᮓ᮪',
-  makassar: 'ᨅᨘᨊᨗ'
+aksaraDictionary["budi"] = {
+  javanese: "ꦧꦸꦝꦶ",
+  sundanese: "ᮘᮤᮓ᮪",
+  makassar: "ᨅᨘᨊᨗ",
 };
 
 // ... continue adding entries
@@ -970,11 +1059,13 @@ git commit -m "feat: add dictionary-override layer to aksara converters"
 ### Task 6: Fix silent-fail Sanity persistence issue
 
 **Files:**
+
 - Modify: `frontend/app/api/save-prasasti/route.ts`
 - Potentially: `frontend/lib/sanity.client.ts` (if needed)
 - Add: Dev-time warning in appropriate location (e.g., layout.tsx or app.tsx)
 
 **Interfaces:**
+
 - Consumes: Form data from PrasastiForm component
 - Produces: Success/error response from Sanity write operation
 
@@ -984,7 +1075,7 @@ git commit -m "feat: add dictionary-override layer to aksara converters"
 // Current code in save-prasasti/route.ts:
 // Line 8: token: process.env.SANITY_API_TOKEN,
 // When this is undefined, the write operation fails silently
-// The try/catch in the route handler should catch errors, but 
+// The try/catch in the route handler should catch errors, but
 // apparently it doesn't when token is missing
 ```
 
@@ -1005,8 +1096,8 @@ export async function POST(req: Request) {
     if (!process.env.SANITY_API_TOKEN) {
       console.error("SANITY_API_TOKEN is missing - cannot write to Sanity");
       return NextResponse.json(
-        { message: "Submission could not be saved — contact site admin" }, 
-        { status: 500 }
+        { message: "Submission could not be saved — contact site admin" },
+        { status: 500 },
       );
     }
 
@@ -1032,8 +1123,8 @@ export async function POST(req: Request) {
 ```typescript
 // Option 1: Add to layout.tsx (root layout)
 useEffect(() => {
-  if (typeof window !== 'undefined' && !process.env.SANITY_API_TOKEN) {
-    console.warn('WARNING: SANITY_API_TOKEN is missing. Data will not be saved to Sanity!');
+  if (typeof window !== "undefined" && !process.env.SANITY_API_TOKEN) {
+    console.warn("WARNING: SANITY_API_TOKEN is missing. Data will not be saved to Sanity!");
   }
 }, []);
 
@@ -1044,15 +1135,15 @@ useEffect(() => {
 - [ ] **Step 4: Implement dev-time warning in sanity.client.ts**
 
 ```typescript
-import { createClient } from 'next-sanity'
+import { createClient } from "next-sanity";
 
-export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET
-export const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || '2024-01-01'
+export const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+export const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
+export const apiVersion = process.env.NEXT_PUBLIC_SANITY_API_VERSION || "2024-01-01";
 
 // Add dev-time warning
-if (typeof window === 'undefined' && !process.env.SANITY_API_TOKEN) {
-  console.warn('WARNING: SANITY_API_TOKEN is missing. Data writes to Sanity will fail silently!');
+if (typeof window === "undefined" && !process.env.SANITY_API_TOKEN) {
+  console.warn("WARNING: SANITY_API_TOKEN is missing. Data writes to Sanity will fail silently!");
 }
 
 export const client = createClient({
@@ -1067,7 +1158,7 @@ export const client = createClient({
 
 Run: `git check-ignore frontend/.env`
 Expected: Should return the path if properly ignored, or nothing if not ignored
-If not ignored, add to .gitignore: 
+If not ignored, add to .gitignore:
 
 ```bash
 echo "frontend/.env" >> .gitignore
@@ -1076,6 +1167,7 @@ echo "frontend/.env" >> .gitignore
 - [ ] **Step 6: Run tests to verify Sanity fix works**
 
 Since this is environment-dependent, we'll test by:
+
 1. Temporarily unsetting SANITY_API_TOKEN and verifying error is returned
 2. Setting SANITY_API_TOKEN and verifying normal operation works
 
@@ -1089,23 +1181,25 @@ git commit -m "fix: add explicit error handling for missing SANITY_API_TOKEN"
 ### Task 7: Write comprehensive tests for aksaraConverter
 
 **Files:**
+
 - Modify: `frontend/lib/aksaraConverter.test.ts`
 
 **Interfaces:**
+
 - Consumes: Various test inputs
 - Produces: Test assertions
 
 - [ ] **Step 1: Write test for ba/tha bug fix**
 
 ```typescript
-import { describe, it, expect } from 'vitest';
-import { toJavanese, toSundanese, toMakassar } from './aksaraConverter';
+import { describe, it, expect } from "vitest";
+import { toJavanese, toSundanese, toMakassar } from "./aksaraConverter";
 
-describe('aksaraConverter fixes', () => {
-  it('should fix the ba/tha bug in Javanese', () => {
-    expect(toJavanese('ba')).toBe('ꦧ'); // Should be ba, not tha
-    expect(toJavanese('b')).toBe('ꦧ');  // Single b should also work
-    expect(toJavanese('tha')).toBe('ꦛ'); // tha should still be tha
+describe("aksaraConverter fixes", () => {
+  it("should fix the ba/tha bug in Javanese", () => {
+    expect(toJavanese("ba")).toBe("ꦧ"); // Should be ba, not tha
+    expect(toJavanese("b")).toBe("ꦧ"); // Single b should also work
+    expect(toJavanese("tha")).toBe("ꦛ"); // tha should still be tha
   });
 });
 ```
@@ -1113,33 +1207,33 @@ describe('aksaraConverter fixes', () => {
 - [ ] **Step 2: Write tests for known-correct Javanese words**
 
 ```typescript
-  it('should convert known Javanese words correctly', () => {
-    // These should be verified correct examples
-    expect(toJavanese('budi')).toBe('ꦧꦸꦝꦶ');
-    expect(toJavanese('jawa')).toBe('ꦗꦮ');
-    // TODO: Verify these before enabling strict equality tests
-    // expect(toJavanese('nama')).toBe('ꦤꦩ');  // Needs verification
-    // expect(toJavanese('suka')).toBe('ꦱꦸꦏ');   // Needs verification
-    // Add more verified examples
-  });
+it("should convert known Javanese words correctly", () => {
+  // These should be verified correct examples
+  expect(toJavanese("budi")).toBe("ꦧꦸꦝꦶ");
+  expect(toJavanese("jawa")).toBe("ꦗꦮ");
+  // TODO: Verify these before enabling strict equality tests
+  // expect(toJavanese('nama')).toBe('ꦤꦩ');  // Needs verification
+  // expect(toJavanese('suka')).toBe('ꦱꦸꦏ');   // Needs verification
+  // Add more verified examples
+});
 ```
 
 - [ ] **Step 3: Write tests for dictionary override taking precedence**
 
 ```typescript
-  it('should use dictionary override when available', () => {
-    // Test with a word we know will be in the dictionary ('budi' from seed data)
-    expect(toJavanese('budi')).toBe('ꦧꦸꦝꦶ');
-    expect(getConversionConfidence('budi', 'javanese')).toBe('verified');
-    
-    // Word not in dictionary should use rule-based
-    expect(getConversionConfidence('unknownword', 'javanese')).toBe('rule-based');
-    
-    // Test that dictionary takes precedence over rule-based
-    // By adding a temporary entry for test purposes
-    // Note: In real implementation, we wouldn't modify the dictionary at runtime,
-    // but this tests the lookup mechanism
-  });
+it("should use dictionary override when available", () => {
+  // Test with a word we know will be in the dictionary ('budi' from seed data)
+  expect(toJavanese("budi")).toBe("ꦧꦸꦝꦶ");
+  expect(getConversionConfidence("budi", "javanese")).toBe("verified");
+
+  // Word not in dictionary should use rule-based
+  expect(getConversionConfidence("unknownword", "javanese")).toBe("rule-based");
+
+  // Test that dictionary takes precedence over rule-based
+  // By adding a temporary entry for test purposes
+  // Note: In real implementation, we wouldn't modify the dictionary at runtime,
+  // but this tests the lookup mechanism
+});
 ```
 
 - [ ] **Step 4: Write tests for word boundary / whitespace preservation**
@@ -1156,11 +1250,11 @@ describe('aksaraConverter fixes', () => {
 - [ ] **Step 5: Add similar tests for Sundanese and Makassar**
 
 ```typescript
-describe('aksaraConverter Sundanese', () => {
+describe("aksaraConverter Sundanese", () => {
   // Add Sundanese-specific tests
 });
 
-describe('aksaraConverter Makassar', () => {
+describe("aksaraConverter Makassar", () => {
   // Add Makassar-specific tests
 });
 ```
@@ -1181,7 +1275,8 @@ git commit -m "feat: add comprehensive tests for aksara converters"
 
 ## Plan Review and Execution
 
-**Spec Coverage Check:** 
+**Spec Coverage Check:**
+
 - [x] Fix toJavanese() syllabifier and ba/tha bug
 - [x] Fix toSundanese() and toMakassar() with proper syllabifiers
 - [x] Add dictionary-override layer with getConversionConfidence helper

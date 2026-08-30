@@ -11,8 +11,7 @@ export type HeroData = {
 export default function Hero({ data }: { data: HeroData }) {
   const title = data?.title || "ABADIKAN WARISAN LELUHUR";
   const subtitle =
-    data?.subtitle ||
-    "Konversi namamu ke Aksara Nusantara dan simpan selamanya di Blockchain.";
+    data?.subtitle || "Konversi namamu ke Aksara Nusantara dan simpan selamanya di Blockchain.";
   const imageUrl = data?.heroImage ? urlForImage(data.heroImage).url() : null;
 
   return (

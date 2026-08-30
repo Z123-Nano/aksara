@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import {defineField, defineType} from 'sanity'
 
 export default defineType({
   name: 'prasasti',
@@ -16,10 +16,14 @@ export default defineType({
       type: 'string',
     }),
     defineField({
-      name: 'signature',
-      title: 'Hash Signature (Bukti Web3)',
+      name: 'txHash',
+      title: 'Transaction Hash',
       type: 'string',
-      description: 'Kode unik tanda tangan dari MetaMask',
+    }),
+    defineField({
+      name: 'txUrl',
+      title: 'Transaction URL',
+      type: 'url',
     }),
     defineField({
       name: 'timestamp',

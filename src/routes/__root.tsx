@@ -19,9 +19,7 @@ function NotFoundComponent() {
       <div className="max-w-lg text-center">
         <p className="font-serif text-7xl text-gold">ꦱꦼꦥꦶ</p>
         <h1 className="mt-4 font-serif text-5xl font-bold text-ink">404</h1>
-        <h2 className="mt-3 font-serif text-xl font-semibold text-bark">
-          Halaman tidak ditemukan
-        </h2>
+        <h2 className="mt-3 font-serif text-xl font-semibold text-bark">Halaman tidak ditemukan</h2>
         <p className="mt-2 text-sm text-bronze">
           Lembaran yang Anda cari mungkin telah berpindah atau belum pernah diukir.
         </p>

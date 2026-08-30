@@ -1,31 +1,25 @@
 import { useState, useMemo } from "react";
-import { ethers } from "ethers";
-import { Copy, Loader2, Check, Info } from "lucide-react";
+import { Copy, Loader2, Check, Info, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { toJavanese, toSundanese, toMakassar, toBalinese, getUnsupportedLetters } from "@/lib/aksaraConverter";
+import {
+  toJavanese,
+  toSundanese,
+  toMakassar,
+  toBalinese,
+  getUnsupportedLetters,
+} from "@/lib/aksaraConverter";
 import { savePrasasti } from "@/lib/prasasti.functions";
 import { getLoanwordNote } from "@/lib/loanwordNotes";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 
 type ScriptType = "javanese" | "sundanese" | "makassar" | "balinese";
 
-interface Eip1193Provider {
-  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-}
-
-declare global {
-  interface Window {
-    ethereum?: Eip1193Provider;
-  }
-}
-
 export default function PrasastiForm() {
   const [inputName, setInputName] = useState("");
   const [scriptType, setScriptType] = useState<ScriptType>("javanese");
-  const [status, setStatus] = useState<
-    "idle" | "connecting" | "minting" | "success" | "error"
-  >("idle");
-  const [lastHash, setLastHash] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [txHash, setTxHash] = useState<string>("");
+  const [txUrl, setTxUrl] = useState<string>("");
 
   const resultAksara = useMemo(() => {
     if (!inputName) return "";
@@ -59,36 +53,22 @@ export default function PrasastiForm() {
     return getUnsupportedLetters(inputName, scriptType);
   }, [inputName, scriptType]);
 
-  const unsupportedSet = useMemo(() => new Set(unsupportedLetters), [
-    unsupportedLetters,
-  ]);
+  const unsupportedSet = useMemo(() => new Set(unsupportedLetters), [unsupportedLetters]);
 
-  const handleMint = async () => {
-    if (typeof window === "undefined" || !window.ethereum) {
-      alert("Harap install MetaMask untuk menggunakan fitur Prasasti Digital!");
-      return;
-    }
-
-    setStatus("connecting");
+  const handleSubmit = async () => {
+    setStatus("loading");
     try {
-      const provider = new ethers.BrowserProvider(window.ethereum as never);
-      const signer = await provider.getSigner();
-
-      setStatus("minting");
-      const message = `MINT_PRASASTI_V2: \nNama: ${inputName} \nJenis Aksara: ${scriptType.toUpperCase()} \nHasil: ${resultAksara} \nTimestamp: ${Date.now()}`;
-      const signature = await signer.signMessage(message);
-
-      setLastHash(signature);
-
-      await savePrasasti({
+      const result = await savePrasasti({
         data: {
           name: inputName,
           message: resultAksara,
           scriptType,
-          signature,
         },
       });
 
+      // The result now contains txHash and txUrl from the server function
+      setTxHash(result.txHash);
+      setTxUrl(result.txUrl);
       setStatus("success");
     } catch (error) {
       console.error("Gagal simpan ke database:", error);
@@ -202,10 +182,9 @@ export default function PrasastiForm() {
             </div>
           </div>
 
-
           <button
-            onClick={handleMint}
-            disabled={status === "minting" || status === "success" || !inputName}
+            onClick={handleSubmit}
+            disabled={status === "loading" || status === "success" || !inputName}
             className={`w-full py-5 font-bold rounded-xl transition-all border-b-4 uppercase tracking-widest flex justify-center items-center gap-3 text-sm mt-2
               ${
                 status === "success"
@@ -215,8 +194,7 @@ export default function PrasastiForm() {
               ${!inputName ? "opacity-50 cursor-not-allowed transform-none grayscale" : "opacity-100"}
             `}
           >
-            {status === "connecting" && <span className="animate-pulse">Menghubungkan Wallet...</span>}
-            {status === "minting" && (
+            {status === "loading" && (
               <span className="flex items-center gap-2">
                 <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> Sedang Mengukir...
               </span>
@@ -232,7 +210,7 @@ export default function PrasastiForm() {
         </div>
       </div>
 
-      {status === "success" && lastHash && (
+      {status === "success" && txHash && txUrl && (
         <div className="p-6 bg-bark border border-gold/30 rounded-xl text-center shadow-2xl relative overflow-hidden">
           <h3 className="text-gold font-serif text-xl mb-2 relative z-10">
             🎉 PRASASTI BARU TERCIPTA
@@ -243,11 +221,20 @@ export default function PrasastiForm() {
 
           <div className="bg-ink p-4 rounded-lg text-left overflow-hidden relative border border-gold/10 z-10">
             <p className="text-[10px] text-gold uppercase tracking-widest mb-1 font-bold">
-              Digital Signature (Hash):
+              Transaction Hash:
             </p>
             <p className="text-xs text-parchment font-mono break-all leading-relaxed opacity-90">
-              {lastHash}
+              {txHash}
             </p>
+            <a
+              href={txUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 inline-flex items-center gap-2 text-sm text-gold hover:text-bark"
+            >
+              <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              Lihat di Sepolia Etherscan
+            </a>
           </div>
         </div>
       )}

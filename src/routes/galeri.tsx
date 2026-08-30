@@ -27,9 +27,7 @@ export const Route = createFileRoute("/galeri")({
     ],
   }),
   loader: async () => {
-    const data = await sanityFetch<GalleryItem[]>(
-      `*[_type == "galeri"]{ title, caption, image }`,
-    );
+    const data = await sanityFetch<GalleryItem[]>(`*[_type == "galeri"]{ title, caption, image }`);
     return data ?? [];
   },
   component: GaleriPage,
@@ -97,9 +95,7 @@ function GaleriPage() {
         ) : (
           <div className="text-center py-24 border-2 border-dashed border-gold/30 rounded-3xl bg-white/50 backdrop-blur-sm">
             <div className="text-4xl mb-4">📷</div>
-            <p className="text-ink text-xl font-serif font-bold mb-2">
-              Belum ada foto di galeri
-            </p>
+            <p className="text-ink text-xl font-serif font-bold mb-2">Belum ada foto di galeri</p>
             <p className="text-sm text-clay">Silakan upload foto di Sanity Studio (Backend)</p>
           </div>
         )}

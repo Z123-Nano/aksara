@@ -1,12 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-
-const schema = z.object({
-  name: z.string().min(1),
-  message: z.string(),
-  scriptType: z.string(),
-  signature: z.string().min(1),
-});
+import { anchorInscription } from "./blockchain";
 
 // Dev-time warning if token missing
 if (typeof process !== "undefined" && process.env && !process.env["SANITY_API_TOKEN"]) {
@@ -14,7 +8,14 @@ if (typeof process !== "undefined" && process.env && !process.env["SANITY_API_TO
 }
 
 export const savePrasasti = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => schema.parse(data))
+  .inputValidator((data: unknown) => {
+    const schema = z.object({
+      name: z.string().min(1),
+      message: z.string(),
+      scriptType: z.string(),
+    });
+    return schema.parse(data);
+  })
   .handler(async ({ data }) => {
     const token = process.env["SANITY_API_TOKEN"];
     if (!token) {
@@ -31,13 +32,25 @@ export const savePrasasti = createServerFn({ method: "POST" })
       useCdn: false,
     });
 
+    // Build record for anchoring (deterministic order)
+    const record = {
+      name: data.name,
+      scriptType: data.scriptType,
+      aksara: data.message,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Anchor to Sepolia testnet
+    const { hash: txHash, txUrl } = await anchorInscription(record);
+
     const result = await writeClient.create({
       _type: "prasasti",
       name: data.name,
       message: data.message,
-      signature: data.signature,
+      txHash,
+      txUrl,
       timestamp: new Date().toISOString(),
     });
 
-    return { saved: true as const, id: result._id };
+    return { saved: true as const, id: result._id, txHash, txUrl };
   });

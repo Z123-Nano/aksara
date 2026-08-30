@@ -51,9 +51,7 @@ function DetailAksaraPage() {
         <Navbar />
         <div className="container mx-auto px-6 pt-40 text-center">
           <h1 className="text-3xl font-serif font-bold mb-4">Data tidak ditemukan</h1>
-          <p className="mb-8 text-clay">
-            Aksara yang Anda cari mungkin belum didokumentasikan.
-          </p>
+          <p className="mb-8 text-clay">Aksara yang Anda cari mungkin belum didokumentasikan.</p>
           <Link
             to="/ensiklopedia"
             className="text-gold hover:text-bark font-bold tracking-widest uppercase transition-colors"

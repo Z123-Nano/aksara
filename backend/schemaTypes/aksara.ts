@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import {defineField, defineType} from 'sanity'
 
 export default defineType({
   name: 'aksara',
@@ -30,7 +30,7 @@ export default defineType({
       name: 'description',
       title: 'Sejarah & Deskripsi',
       type: 'array',
-      of: [{ type: 'block' }],
+      of: [{type: 'block'}],
     }),
     defineField({
       name: 'visual',
@@ -44,8 +44,8 @@ export default defineType({
           name: 'alt',
           type: 'string',
           title: 'Alternative Text',
-        }
-      ]
+        },
+      ],
     }),
     defineField({
       name: 'pronunciation',
