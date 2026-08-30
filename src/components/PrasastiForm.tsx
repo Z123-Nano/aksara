@@ -1,5 +1,7 @@
 import { useState, useMemo } from "react";
 import { ethers } from "ethers";
+import { Copy, Loader2, Check, Info } from "lucide-react";
+import { toast } from "sonner";
 import { toJavanese, toSundanese, toMakassar, toBalinese, getUnsupportedLetters } from "@/lib/aksaraConverter";
 import { savePrasasti } from "@/lib/prasasti.functions";
 import { getLoanwordNote } from "@/lib/loanwordNotes";
@@ -164,9 +166,13 @@ export default function PrasastiForm() {
                 {unsupportedLetters.length > 0 ? (
                   <Popover key="unsupported-indicator">
                     <PopoverTrigger asChild>
-                      <span className="absolute top-0 right-0 flex h-6 w-6 items-center justify-center rounded-sm bg-gold text-bark text-[10px]">
-                        ⓘ
-                      </span>
+                      <button
+                        type="button"
+                        aria-label="Lihat catatan huruf serapan"
+                        className="absolute top-0 right-0 flex h-6 w-6 items-center justify-center rounded-sm bg-gold text-bark"
+                      >
+                        <Info className="h-4 w-4" aria-hidden="true" />
+                      </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-48 rounded-md border bg-popover p-2 text-popover-foreground text-xs">
                       {Array.from(unsupportedSet).map((letter) => (
@@ -180,8 +186,22 @@ export default function PrasastiForm() {
                 ) : null}
               </h2>
 
-                          </div>
+              {resultAksara ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(resultAksara);
+                    toast.success("Aksara disalin ke papan klip");
+                  }}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-gold/40 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-gold transition-colors hover:bg-gold hover:text-bark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
+                >
+                  <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+                  Salin Aksara
+                </button>
+              ) : null}
+            </div>
           </div>
+
 
           <button
             onClick={handleMint}
@@ -198,10 +218,14 @@ export default function PrasastiForm() {
             {status === "connecting" && <span className="animate-pulse">Menghubungkan Wallet...</span>}
             {status === "minting" && (
               <span className="flex items-center gap-2">
-                <span className="animate-spin text-xl">⏳</span> Sedang Mengukir...
+                <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> Sedang Mengukir...
               </span>
             )}
-            {status === "success" && "✓ Prasasti Berhasil Disimpan"}
+            {status === "success" && (
+              <span className="flex items-center gap-2">
+                <Check className="h-5 w-5" aria-hidden="true" /> Prasasti Berhasil Disimpan
+              </span>
+            )}
             {status === "idle" && "Abadikan di Blockchain"}
             {status === "error" && "Gagal - Coba Lagi"}
           </button>
