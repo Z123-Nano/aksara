@@ -166,9 +166,13 @@ export default function PrasastiForm() {
                 {unsupportedLetters.length > 0 ? (
                   <Popover key="unsupported-indicator">
                     <PopoverTrigger asChild>
-                      <span className="absolute top-0 right-0 flex h-6 w-6 items-center justify-center rounded-sm bg-gold text-bark text-[10px]">
-                        ⓘ
-                      </span>
+                      <button
+                        type="button"
+                        aria-label="Lihat catatan huruf serapan"
+                        className="absolute top-0 right-0 flex h-6 w-6 items-center justify-center rounded-sm bg-gold text-bark"
+                      >
+                        <Info className="h-4 w-4" aria-hidden="true" />
+                      </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-48 rounded-md border bg-popover p-2 text-popover-foreground text-xs">
                       {Array.from(unsupportedSet).map((letter) => (
