@@ -57,38 +57,38 @@ function Index() {
   const { home, aksara, galeri } = Route.useLoaderData();
 
   return (
-    <main className="bg-white selection:bg-[#D4AF37] selection:text-[#2A1D15]">
+    <main className="bg-white selection:bg-gold selection:text-ink">
       <Navbar />
       <Hero data={home} />
 
-      <section className="py-24 bg-[#2A1D15] text-[#F9F7F2] relative overflow-hidden border-t border-[#D4AF37]/20">
+      <section className="py-24 bg-ink text-parchment relative overflow-hidden border-t border-gold/20">
         <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/batik-ramp.png')] bg-repeat" />
         <div className="container mx-auto px-6 lg:px-8 text-center relative z-10 max-w-4xl">
-          <span className="inline-block py-1 px-4 mb-6 rounded-full border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] font-bold tracking-[0.3em] uppercase">
+          <span className="inline-block py-1 px-4 mb-6 rounded-full border border-gold/50 text-gold text-[10px] font-bold tracking-[0.3em] uppercase">
             Misi Preservasi
           </span>
           <h2 className="font-serif text-3xl md:text-5xl font-bold mb-8 leading-tight">
             {home?.aboutTitle || "Tentang Aksara Abadi"}
           </h2>
-          <p className="text-lg md:text-xl font-light leading-relaxed text-[#F9F7F2]/80">
+          <p className="text-lg md:text-xl font-light leading-relaxed text-parchment/80">
             {home?.aboutContent ||
               "Kami hadir untuk melestarikan aksara nusantara melalui teknologi modern. Menggabungkan kekayaan budaya masa lalu dengan keabadian teknologi Blockchain."}
           </p>
         </div>
       </section>
 
-      <section className="py-24 bg-[#FDFBF7] text-[#2A1D15]">
+      <section className="py-24 bg-cream text-ink">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div className="max-w-2xl">
-              <h2 className="font-serif text-4xl font-bold mb-4 text-[#2A1D15]">Jelajahi Aksara</h2>
-              <p className="text-[#543D2A] text-lg">
+              <h2 className="font-serif text-4xl font-bold mb-4 text-ink">Jelajahi Aksara</h2>
+              <p className="text-clay text-lg">
                 Kenali ragam tulisan dari berbagai penjuru nusantara yang mulai terlupakan.
               </p>
             </div>
             <Link
               to="/ensiklopedia"
-              className="hidden md:inline-flex px-6 py-3 border border-[#432818] rounded-md text-[#432818] font-bold text-sm tracking-widest hover:bg-[#432818] hover:text-[#F9F7F2] transition-all duration-300 uppercase"
+              className="hidden md:inline-flex px-6 py-3 border border-bark rounded-md text-bark font-bold text-sm tracking-widest hover:bg-bark hover:text-parchment transition-all duration-300 uppercase"
             >
               Lihat Semua Aksara
             </Link>
@@ -102,7 +102,7 @@ function Index() {
                 params={{ slug: item.slug }}
                 className="group block"
               >
-                <div className="relative h-72 bg-[#F2ECE4] rounded-xl overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500 border border-[#D4AF37]/20">
+                <div className="relative h-72 bg-sand rounded-xl overflow-hidden mb-6 shadow-sm group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500 border border-gold/20">
                   {item.visual ? (
                     <img
                       src={urlForImage(item.visual).url()}
@@ -111,15 +111,15 @@ function Index() {
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-[#543D2A]/40">
+                    <div className="w-full h-full flex items-center justify-center text-clay/40">
                       No Image
                     </div>
                   )}
-                  <div className="absolute top-4 left-4 bg-[#F9F7F2]/90 backdrop-blur border border-[#D4AF37]/30 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-[#432818]">
+                  <div className="absolute top-4 left-4 bg-parchment/90 backdrop-blur border border-gold/30 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider text-bark">
                     {item.origin}
                   </div>
                 </div>
-                <h3 className="font-serif text-2xl font-bold text-[#2A1D15] group-hover:text-[#D4AF37] transition-colors flex items-center gap-2">
+                <h3 className="font-serif text-2xl font-bold text-ink group-hover:text-gold transition-colors flex items-center gap-2">
                   {item.name}
                   <span className="opacity-0 group-hover:opacity-100 transition-opacity text-lg">
                     →
@@ -132,7 +132,7 @@ function Index() {
           <div className="mt-12 text-center md:hidden">
             <Link
               to="/ensiklopedia"
-              className="inline-block px-8 py-4 bg-[#432818] text-[#F9F7F2] rounded-md font-bold text-xs uppercase tracking-widest"
+              className="inline-block px-8 py-4 bg-bark text-parchment rounded-md font-bold text-xs uppercase tracking-widest"
             >
               Lihat Semua Aksara
             </Link>
@@ -140,38 +140,38 @@ function Index() {
         </div>
       </section>
 
-      <section className="py-24 bg-[#432818] relative overflow-hidden">
-        <div className="absolute top-0 left-0 w-64 h-64 bg-[#D4AF37] rounded-full blur-[120px] opacity-20"></div>
-        <div className="absolute bottom-0 right-0 w-64 h-64 bg-[#D4AF37] rounded-full blur-[120px] opacity-20"></div>
+      <section className="py-24 bg-bark relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-64 h-64 bg-gold rounded-full blur-[120px] opacity-20"></div>
+        <div className="absolute bottom-0 right-0 w-64 h-64 bg-gold rounded-full blur-[120px] opacity-20"></div>
 
         <div className="container mx-auto px-6 lg:px-8 relative z-10 flex flex-col items-center text-center">
-          <div className="w-20 h-20 bg-[#2A1D15] rounded-full flex items-center justify-center text-4xl mb-8 border-2 border-[#D4AF37] shadow-[0_0_30px_rgba(212,175,55,0.3)]">
+          <div className="w-20 h-20 bg-ink rounded-full flex items-center justify-center text-4xl mb-8 border-2 border-gold shadow-[0_0_30px_rgba(212,175,55,0.3)]">
             ✍️
           </div>
-          <h2 className="font-serif text-4xl md:text-6xl font-bold text-[#F9F7F2] mb-6">
+          <h2 className="font-serif text-4xl md:text-6xl font-bold text-parchment mb-6">
             Abadikan Namamu
           </h2>
-          <p className="max-w-2xl text-[#F9F7F2]/80 text-lg md:text-xl mb-12 font-light leading-relaxed">
+          <p className="max-w-2xl text-parchment/80 text-lg md:text-xl mb-12 font-light leading-relaxed">
             Gunakan teknologi Blockchain untuk menyimpan namamu dalam bentuk Aksara Jawa. Jadilah
             bagian dari sejarah digital yang tak terhapuskan.
           </p>
           <Link
             to="/prasasti"
-            className="bg-[#D4AF37] text-[#2A1D15] px-10 py-5 rounded-lg font-bold text-sm uppercase tracking-[0.15em] hover:bg-[#F9F7F2] hover:scale-105 transition-all shadow-xl"
+            className="bg-gold text-ink px-10 py-5 rounded-lg font-bold text-sm uppercase tracking-[0.15em] hover:bg-parchment hover:scale-105 transition-all shadow-xl"
           >
             Buat Prasasti Sekarang
           </Link>
         </div>
       </section>
 
-      <section className="py-24 bg-white text-[#2A1D15]">
+      <section className="py-24 bg-white text-ink">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="text-center mb-16">
-            <span className="text-[#D4AF37] text-xs font-bold tracking-[0.3em] uppercase mb-3 block">
+            <span className="text-gold text-xs font-bold tracking-[0.3em] uppercase mb-3 block">
               Dokumentasi
             </span>
             <h2 className="font-serif text-4xl font-bold mb-4">Galeri Visual</h2>
-            <p className="text-[#543D2A] max-w-xl mx-auto">
+            <p className="text-clay max-w-xl mx-auto">
               Artefak budaya dan kegiatan pelestarian yang kami kumpulkan.
             </p>
           </div>
@@ -190,10 +190,10 @@ function Index() {
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 grayscale group-hover:grayscale-0"
                   />
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#2A1D15] via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-300"></div>
                 <div className="absolute bottom-0 left-0 p-8 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                  <div className="h-1 w-12 bg-[#D4AF37] mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100"></div>
-                  <h3 className="text-[#F9F7F2] font-serif font-bold text-xl leading-snug">
+                  <div className="h-1 w-12 bg-gold mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100"></div>
+                  <h3 className="text-parchment font-serif font-bold text-xl leading-snug">
                     {item.title}
                   </h3>
                 </div>
@@ -204,7 +204,7 @@ function Index() {
           <div className="text-center mt-16">
             <Link
               to="/galeri"
-              className="inline-block border-b border-[#2A1D15] pb-1 text-[#2A1D15] text-sm font-bold tracking-widest hover:text-[#D4AF37] hover:border-[#D4AF37] transition-all"
+              className="inline-block border-b border-ink pb-1 text-ink text-sm font-bold tracking-widest hover:text-gold hover:border-gold transition-all"
             >
               LIHAT GALERI LENGKAP
             </Link>

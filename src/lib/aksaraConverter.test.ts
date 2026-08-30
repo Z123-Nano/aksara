@@ -120,5 +120,4 @@ describe('getUnsupportedLetters - Balinese', () => {
     // no unsupported letters
     expect(getUnsupportedLetters('bakti', 'balinese')).toEqual([]);
   });
-
-  });
+});
