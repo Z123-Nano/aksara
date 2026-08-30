@@ -16,6 +16,19 @@ export default defineType({
       type: 'string',
     }),
     defineField({
+      name: 'scriptType',
+      title: 'Jenis Aksara',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Jawa', value: 'javanese' },
+          { title: 'Sunda', value: 'sundanese' },
+          { title: 'Bali', value: 'balinese' },
+          { title: 'Makassar', value: 'makassar' },
+        ],
+      },
+    }),
+    defineField({
       name: 'txHash',
       title: 'Transaction Hash',
       type: 'string',

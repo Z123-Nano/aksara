@@ -47,6 +47,7 @@ export const savePrasasti = createServerFn({ method: "POST" })
       _type: "prasasti",
       name: data.name,
       message: data.message,
+      scriptType: data.scriptType,
       txHash,
       txUrl,
       timestamp: new Date().toISOString(),
