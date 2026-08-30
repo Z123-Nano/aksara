@@ -56,7 +56,7 @@ export default function Navbar() {
           aria-expanded={open}
           className="md:hidden p-2 rounded-lg text-bark hover:bg-sand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
         >
-          {open ? <Menu className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 
