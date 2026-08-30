@@ -14,19 +14,22 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+    <div className="flex min-h-screen items-center justify-center bg-cream px-4 text-ink">
+      <div className="max-w-lg text-center">
+        <p className="font-serif text-7xl text-gold">ꦱꦼꦥꦶ</p>
+        <h1 className="mt-4 font-serif text-5xl font-bold text-ink">404</h1>
+        <h2 className="mt-3 font-serif text-xl font-semibold text-bark">
+          Halaman tidak ditemukan
+        </h2>
+        <p className="mt-2 text-sm text-bronze">
+          Lembaran yang Anda cari mungkin telah berpindah atau belum pernah diukir.
         </p>
-        <div className="mt-6">
+        <div className="mt-8">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center rounded-full bg-bark px-8 py-3 text-xs font-bold tracking-widest text-sand transition-all hover:-translate-y-1 hover:bg-gold hover:text-bark"
           >
-            Go home
+            KEMBALI KE BERANDA
           </Link>
         </div>
       </div>
