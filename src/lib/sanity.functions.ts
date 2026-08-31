@@ -15,5 +15,6 @@ const inputSchema = z.object({
 export const runSanityQuery = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => inputSchema.parse(data))
   .handler(async ({ data }) => {
-    return sanityFetch<unknown>(SANITY_QUERIES[data.key], data.params ?? {});
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (await sanityFetch<any>(SANITY_QUERIES[data.key], data.params ?? {})) as any;
   });
