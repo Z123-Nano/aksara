@@ -72,10 +72,14 @@
   --color-sand-dark: var(--sand-dark);
   --color-parchment: var(--parchment);
   --color-bronze: var(--bronze);
+  --color-clay: var(--clay);
   --color-moss: var(--moss);
   --color-moss-dark: var(--moss-dark);
 
   --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-aksara:
+    "Noto Sans Javanese", "Noto Sans Balinese", "Noto Sans Sundanese", "Noto Sans Buginese",
+    sans-serif;
 }
 
 :root {
@@ -125,6 +129,7 @@
   --sand-dark: oklch(0.87 0.03 82);
   --parchment: oklch(0.96 0.02 88);
   --bronze: oklch(0.52 0.06 65);
+  --clay: oklch(0.46 0.03 60);
   --moss: oklch(0.55 0.09 145);
   --moss-dark: oklch(0.43 0.08 145);
 }
