@@ -24,16 +24,18 @@ export const Route = createFileRoute("/tentang")({
 
 const TEAM = [
   {
-    nama: "[Nama Anggota 1]",
-    peran: "Project Lead & Frontend",
-    bio: "[Deskripsi singkat anggota 1 — misalnya latar belakang, minat pada budaya, atau kontribusinya pada proyek ini.]",
+    nama: "Muhammad Alvaro Azisi",
+    peran: "Project Lead & Full-stack Developer",
+    bio: "Pengen nyoba aja sih, implementasi teknologi blockchain buat pelestarian budaya Nusantara. Suka banget sama aksara tradisional, dan pengen bikin sesuatu yang bisa dinikmati generasi mendatang.",
     inisial: "A1",
+    foto: "/A1.jpeg",
   },
   {
-    nama: "[Nama Anggota 2]",
-    peran: "Backend & Data",
-    bio: "[Deskripsi singkat anggota 2 — misalnya latar belakang, minat pada budaya, atau kontribusinya pada proyek ini.]",
+    nama: "John Doe",
+    peran: "UI/UX Designer & Front-end Developer",
+    bio: "Desainer dan pengembang frontend yang berkomitmen untuk menciptakan pengalaman pengguna yang luar biasa. Memiliki minat besar pada budaya, terutama aksara kuno, dan ingin membantu melestarikan warisan Nusantara melalui desain yang inklusif.",
     inisial: "A2",
+    foto: "/A2.jpeg",
   },
 ];
 
@@ -152,15 +154,12 @@ function TentangPage() {
                 key={anggota.nama}
                 className="group bg-white border border-gold/20 rounded-xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
               >
-                <div className="h-56 bg-sand flex items-center justify-center relative">
-                  <div className="w-24 h-24 rounded-full bg-bark border-2 border-gold flex items-center justify-center">
-                    <span className="font-serif text-2xl font-bold text-gold">
-                      {anggota.inisial}
-                    </span>
-                  </div>
-                  <span className="absolute bottom-3 text-[10px] text-clay/40 tracking-widest uppercase">
-                    [Foto anggota]
-                  </span>
+                <div className="h-64 bg-sand overflow-hidden">
+                  <img
+                    src={anggota.foto}
+                    alt={`Foto ${anggota.nama}`}
+                    className="w-full h-full object-cover object-[center_25%]"
+                  />
                 </div>
                 <div className="p-6 text-center">
                   <h3 className="font-serif text-xl font-bold text-ink group-hover:text-gold transition-colors">

@@ -2,7 +2,7 @@
  * Historical note for unsupported letters in Javanese and Makassar scripts.
  */
 export const LOANWORD_NOTE =
-  "Javanese/Makassar script has no native letter for this sound — it entered the language later through Arabic and Dutch/European loanwords, after the script's letter inventory had already stabilized.";
+  "Huruf tersebut merupakan huruf serapan yang tidak termasuk dalam kumpulan huruf Aksara yang tersedia. Silakan gunakan huruf yang tersedia dalam Aksara untuk menulis teks kamu <3.";
 
 /**
  * Returns the note for a given letter (same note for all unsupported letters).

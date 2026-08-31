@@ -216,7 +216,7 @@ export default function PrasastiForm() {
             🎉 PRASASTI BARU TERCIPTA
           </h3>
           <p className="text-parchment/80 text-sm mb-4 relative z-10">
-            Nama Anda telah diabadikan dalam <strong>{getScriptLabel(scriptType)}</strong>.
+            Tulisan Anda telah diabadikan dalam <strong>{getScriptLabel(scriptType)}</strong>.
           </p>
 
           <div className="bg-ink p-4 rounded-lg text-left overflow-hidden relative border border-gold/10 z-10">
