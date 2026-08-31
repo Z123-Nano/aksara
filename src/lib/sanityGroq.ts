@@ -14,6 +14,7 @@ export const SANITY_QUERIES = {
     name, origin, visual, description, content, "audio": pronunciation.asset->url
   }`,
   prasastiList: `*[_type == "prasasti"] { name, message, scriptType, txHash, txUrl, timestamp } | order(timestamp desc)`,
+  counts: `{ "aksara": count(*[_type == "aksara"]), "prasasti": count(*[_type == "prasasti"]) }`,
 } as const;
 
 export type SanityQueryKey = keyof typeof SANITY_QUERIES;

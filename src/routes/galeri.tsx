@@ -67,7 +67,7 @@ function GaleriPage() {
   return (
     <main className="relative min-h-screen bg-cream text-ink selection:bg-gold selection:text-parchment">
       <Navbar />
-      <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/batik-ramp.png')] bg-repeat mix-blend-multiply" />
+      <div className="absolute inset-0 opacity-50 pointer-events-none bg-batik-soft" aria-hidden="true" />
 
       <div className="container mx-auto px-6 lg:px-8 pt-32 pb-20 relative z-10">
         <div className="text-center mb-12 max-w-3xl mx-auto">
@@ -77,7 +77,7 @@ function GaleriPage() {
           <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6 text-ink">
             Galeri Prasasti Digital
           </h1>
-          <p className="text-clay font-medium text-base md:text-lg leading-relaxed">
+          <p className="text-clay-strong font-medium text-base md:text-lg leading-relaxed">
             Koleksi prasasti digital yang telah diabadikan pada blockchain Ethereum Sepolia testnet.
           </p>
         </div>
@@ -107,7 +107,7 @@ function GaleriPage() {
           <div className="text-center py-24 border-2 border-dashed border-gold/30 rounded-3xl bg-white/60 max-w-2xl mx-auto">
             <ScrollText className="w-10 h-10 mx-auto text-gold mb-4" />
             <p className="text-xl font-serif font-bold mb-2">Belum ada prasasti</p>
-            <p className="text-sm text-clay mb-8">
+            <p className="text-sm text-clay-strong mb-8">
               Jadilah yang pertama mengabadikan namamu dalam aksara Nusantara.
             </p>
             <Link
@@ -136,7 +136,7 @@ function GaleriPage() {
                     {scriptLabel(item.scriptType)}
                   </p>
                   <h2 className="font-serif text-2xl font-bold text-ink mb-1">{item.name}</h2>
-                  <p className="text-xs text-clay mb-6">{formatDate(item.timestamp)}</p>
+                  <p className="text-xs text-clay-strong mb-6">{formatDate(item.timestamp)}</p>
 
                   <div className="mt-auto pt-4 border-t border-gold/20 flex items-center justify-between gap-3">
                     <span className="inline-flex items-center gap-1.5 text-xs font-bold text-moss-dark">

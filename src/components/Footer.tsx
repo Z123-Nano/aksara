@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 export default function Footer() {
   return (
     <footer className="relative bg-ink text-parchment py-16 border-t-4 border-gold overflow-hidden">
-      <div className="absolute inset-0 w-full h-full opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/batik-ramp.png')] bg-repeat" />
+      <div className="absolute inset-0 w-full h-full opacity-30 pointer-events-none bg-batik" aria-hidden="true" />
 
       <div className="container mx-auto px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-10 md:gap-0">

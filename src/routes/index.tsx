@@ -40,7 +40,7 @@ function Index() {
       <Hero data={home} />
 
       <section className="py-24 bg-ink text-parchment relative overflow-hidden border-t border-gold/20">
-        <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/batik-ramp.png')] bg-repeat" />
+        <div className="absolute inset-0 opacity-30 pointer-events-none bg-batik" aria-hidden="true" />
         <div className="container mx-auto px-6 lg:px-8 text-center relative z-10 max-w-4xl">
           <span className="inline-block py-1 px-4 mb-6 rounded-full border border-gold/50 text-gold text-[10px] font-bold tracking-[0.3em] uppercase">
             Misi Preservasi
@@ -60,7 +60,7 @@ function Index() {
           <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
             <div className="max-w-2xl">
               <h2 className="font-serif text-4xl font-bold mb-4 text-ink">Jelajahi Aksara</h2>
-              <p className="text-clay text-lg">
+              <p className="text-clay-strong text-lg">
                 Kenali ragam tulisan dari berbagai penjuru nusantara yang mulai terlupakan.
               </p>
             </div>
@@ -85,7 +85,10 @@ function Index() {
                     <img
                       src={urlForImage(item.visual).url()}
                       alt={item.name}
+                      width={512}
+                      height={288}
                       loading="lazy"
+                      decoding="async"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                     />
                   ) : (
@@ -149,7 +152,7 @@ function Index() {
               Dokumentasi
             </span>
             <h2 className="font-serif text-4xl font-bold mb-4">Galeri Visual</h2>
-            <p className="text-clay max-w-xl mx-auto">
+            <p className="text-clay-strong max-w-xl mx-auto">
               Artefak budaya dan kegiatan pelestarian yang kami kumpulkan.
             </p>
           </div>
@@ -164,7 +167,10 @@ function Index() {
                   <img
                     src={urlForImage(item.image).url()}
                     alt={item.title}
+                    width={512}
+                    height={384}
                     loading="lazy"
+                    decoding="async"
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 grayscale group-hover:grayscale-0"
                   />
                 )}

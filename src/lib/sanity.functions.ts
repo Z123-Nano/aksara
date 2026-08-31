@@ -4,7 +4,7 @@ import { sanityFetch } from "@/lib/sanity";
 import { SANITY_QUERIES } from "@/lib/sanityGroq";
 
 const inputSchema = z.object({
-  key: z.enum(["home", "aksaraList", "aksaraDetail", "prasastiList"]),
+  key: z.enum(["home", "aksaraList", "aksaraDetail", "prasastiList", "counts"]),
   params: z.record(z.string(), z.string()).optional(),
 });
 

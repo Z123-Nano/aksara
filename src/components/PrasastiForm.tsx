@@ -89,6 +89,7 @@ export default function PrasastiForm() {
             <div className="relative">
               <select
                 id="scriptType"
+                name="scriptType"
                 value={scriptType}
                 onChange={(e) => setScriptType(e.target.value as ScriptType)}
                 className="w-full px-5 py-3 rounded-xl border-2 border-bark/20 bg-cream text-ink focus:outline-none focus:border-bark focus:ring-1 focus:ring-bark transition-all text-base shadow-sm appearance-none cursor-pointer hover:bg-white"
@@ -117,12 +118,21 @@ export default function PrasastiForm() {
             </label>
             <input
               id="nameInput"
+              name="name"
               type="text"
               value={inputName}
               onChange={(e) => setInputName(e.target.value)}
               placeholder="Ketik nama di sini (Contoh: Budi Santoso)"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              maxLength={80}
+              aria-describedby="nameHint"
               className="w-full px-5 py-4 rounded-xl border-2 border-bark/20 bg-cream text-ink placeholder:text-bark/40 focus:outline-none focus:border-bark focus:ring-1 focus:ring-bark transition-all text-lg shadow-inner"
             />
+            <p id="nameHint" className="text-xs text-bark/60">
+              Maksimum 80 karakter. Huruf di luar aksara yang dipilih akan ditampilkan catatan.
+            </p>
           </div>
 
           <div className="relative group mt-4">
@@ -141,14 +151,18 @@ export default function PrasastiForm() {
                 </span>
               </p>
 
-              <h2 className="relative text-parchment text-center leading-normal drop-shadow-md font-serif break-all w-full text-4xl md:text-6xl">
+              <h2
+                aria-live="polite"
+                aria-atomic="true"
+                className="relative text-parchment text-center leading-normal drop-shadow-md font-serif break-all w-full text-4xl md:text-6xl"
+              >
                 {resultAksara ? resultAksara : "..."}
                 {unsupportedLetters.length > 0 ? (
                   <Popover key="unsupported-indicator">
                     <PopoverTrigger asChild>
                       <button
                         type="button"
-                        aria-label="Lihat catatan huruf serapan"
+                        aria-label={`Lihat catatan huruf serapan (${unsupportedLetters.length} huruf)`}
                         className="absolute top-0 right-0 flex h-6 w-6 items-center justify-center rounded-sm bg-gold text-bark"
                       >
                         <Info className="h-4 w-4" aria-hidden="true" />
@@ -183,8 +197,10 @@ export default function PrasastiForm() {
           </div>
 
           <button
+            type="submit"
             onClick={handleSubmit}
             disabled={status === "loading" || status === "success" || !inputName}
+            aria-busy={status === "loading"}
             className={`w-full py-5 font-bold rounded-xl transition-all border-b-4 uppercase tracking-widest flex justify-center items-center gap-3 text-sm mt-2
               ${
                 status === "success"
@@ -211,7 +227,11 @@ export default function PrasastiForm() {
       </div>
 
       {status === "success" && txHash && txUrl && (
-        <div className="p-6 bg-bark border border-gold/30 rounded-xl text-center shadow-2xl relative overflow-hidden">
+        <div
+          role="status"
+          aria-live="assertive"
+          className="p-6 bg-bark border border-gold/30 rounded-xl text-center shadow-2xl relative overflow-hidden"
+        >
           <h3 className="text-gold font-serif text-xl mb-2 relative z-10">
             🎉 PRASASTI BARU TERCIPTA
           </h3>

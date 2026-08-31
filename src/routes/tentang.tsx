@@ -1,6 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import PageSkeleton from "@/components/PageSkeleton";
+import { countsQueryOptions, type SanityCounts } from "@/lib/sanityQueries";
 
 export const Route = createFileRoute("/tentang")({
   head: () => ({
@@ -19,6 +22,9 @@ export const Route = createFileRoute("/tentang")({
       },
     ],
   }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(countsQueryOptions),
+  pendingMs: 100,
+  pendingComponent: () => <PageSkeleton cards={3} />,
   component: TentangPage,
 });
 
@@ -26,15 +32,15 @@ const TEAM = [
   {
     nama: "Muhammad Alvaro Azisi",
     peran: "Project Lead & Full-stack Developer",
-    bio: "Pengen nyoba aja sih, implementasi teknologi blockchain buat pelestarian budaya Nusantara. Suka banget sama aksara tradisional, dan pengen bikin sesuatu yang bisa dinikmati generasi mendatang.",
-    inisial: "A1",
+    bio: "Mengeksplorasi penerapan teknologi blockchain untuk pelestarian budaya Nusantara. Tertarik pada aksara tradisional dan ingin membangun sesuatu yang bisa dinikmati generasi mendatang.",
+    inisial: "MA",
     foto: "/A1.jpeg",
   },
   {
-    nama: "John Doe",
+    nama: "Muhammad Dhiaulhaq Aditama",
     peran: "UI/UX Designer & Front-end Developer",
-    bio: "Desainer dan pengembang frontend yang berkomitmen untuk menciptakan pengalaman pengguna yang luar biasa. Memiliki minat besar pada budaya, terutama aksara kuno, dan ingin membantu melestarikan warisan Nusantara melalui desain yang inklusif.",
-    inisial: "A2",
+    bio: "Desainer dan pengembang frontend yang peduli pada pengalaman pengguna. Berminat pada budaya dan aksara kuno Nusantara, serta ingin membantu melestarikan warisan tersebut lewat desain yang inklusif.",
+    inisial: "MD",
     foto: "/A2.jpeg",
   },
 ];
@@ -60,14 +66,16 @@ const NILAI = [
   },
 ];
 
-const STATISTIK = [
-  { angka: "[3]+", label: "Aksara Terdokumentasi" },
-  { angka: "[100]+", label: "Prasasti Dibuat" },
-  { angka: "[2026]", label: "Tahun Berdiri" },
-  { angka: "[2]", label: "Anggota Tim" },
-];
+const TAHUN_BERDIRI = 2026;
+
+function formatCount(n: number): string {
+  return `${n}+`;
+}
 
 function TentangPage() {
+  const { data: counts } = useSuspenseQuery(countsQueryOptions);
+  const statistik = buildStatistik(counts);
+
   return (
     <main className="bg-white selection:bg-gold selection:text-ink">
       <Navbar />
@@ -84,7 +92,7 @@ function TentangPage() {
             <br />
             <span className="text-gold">Merawat Peradaban</span>
           </h1>
-          <p className="text-lg md:text-xl font-light leading-relaxed text-clay">
+          <p className="text-lg md:text-xl font-light leading-relaxed text-clay-strong">
             Aksara Abadi lahir dari kegelisahan melihat aksara Nusantara yang perlahan terlupakan.
             Kami percaya teknologi modern bisa menjadi jembatan antara warisan masa lalu dan
             generasi masa depan.
@@ -122,7 +130,7 @@ function TentangPage() {
       <section className="py-20 bg-sand border-b border-sand-dark">
         <div className="container mx-auto px-6 lg:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center max-w-4xl mx-auto">
-            {STATISTIK.map((stat) => (
+            {statistik.map((stat) => (
               <div key={stat.label}>
                 <div className="font-serif text-4xl md:text-5xl font-bold text-bark mb-2">
                   {stat.angka}
@@ -144,7 +152,7 @@ function TentangPage() {
               Orang-Orang di Balik Layar
             </span>
             <h2 className="font-serif text-4xl font-bold text-ink mb-4">Tim Kami</h2>
-            <p className="text-clay max-w-xl mx-auto">
+            <p className="text-clay-strong max-w-xl mx-auto">
               Dua orang dengan satu tujuan: memastikan aksara Nusantara tetap hidup di era digital.
             </p>
           </div>
@@ -158,6 +166,10 @@ function TentangPage() {
                   <img
                     src={anggota.foto}
                     alt={`Foto ${anggota.nama}`}
+                    width={512}
+                    height={256}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover object-[center_25%]"
                   />
                 </div>
@@ -168,7 +180,7 @@ function TentangPage() {
                   <p className="text-gold text-xs font-bold tracking-widest uppercase mt-1 mb-4">
                     {anggota.peran}
                   </p>
-                  <p className="text-clay text-sm font-light leading-relaxed">{anggota.bio}</p>
+                  <p className="text-clay-strong text-sm font-light leading-relaxed">{anggota.bio}</p>
                 </div>
               </div>
             ))}
@@ -208,4 +220,13 @@ function TentangPage() {
       <Footer />
     </main>
   );
+}
+
+function buildStatistik(counts: SanityCounts) {
+  return [
+    { angka: formatCount(counts.aksara), label: "Aksara Terdokumentasi" },
+    { angka: formatCount(counts.prasasti), label: "Prasasti Dibuat" },
+    { angka: String(TAHUN_BERDIRI), label: "Tahun Berdiri" },
+    { angka: String(TEAM.length), label: "Anggota Tim" },
+  ];
 }

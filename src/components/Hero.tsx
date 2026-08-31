@@ -16,7 +16,7 @@ export default function Hero({ data }: { data: HeroData }) {
 
   return (
     <section className="relative min-h-screen flex items-center bg-cream overflow-hidden pt-40 pb-20 lg:pt-48">
-      <div className="absolute top-0 right-0 w-full h-full opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/batik-ramp.png')] bg-repeat mix-blend-multiply" />
+      <div className="absolute top-0 right-0 w-full h-full opacity-50 pointer-events-none bg-batik-soft" aria-hidden="true" />
 
       <div className="container mx-auto px-8 lg:px-16 max-w-7xl relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center h-full">
         <div className="text-center lg:text-left order-2 lg:order-1 flex flex-col items-center lg:items-start lg:pl-4">
@@ -55,6 +55,11 @@ export default function Hero({ data }: { data: HeroData }) {
                 <img
                   src={imageUrl}
                   alt="Ilustrasi aksara nusantara"
+                  width={480}
+                  height={480}
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
                   className="absolute inset-0 w-full h-full object-contain drop-shadow-xl hover:scale-105 transition-transform duration-700 ease-in-out"
                 />
               ) : (

@@ -40,7 +40,7 @@ function EnsiklopediaPage() {
   return (
     <main className="relative min-h-screen bg-cream text-ink selection:bg-gold selection:text-parchment">
       <Navbar />
-      <div className="absolute top-0 right-0 w-full h-full opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/batik-ramp.png')] bg-repeat mix-blend-multiply" />
+      <div className="absolute top-0 right-0 w-full h-full opacity-50 pointer-events-none bg-batik-soft" aria-hidden="true" />
 
       <div className="container mx-auto px-6 lg:px-8 pt-32 pb-20 relative z-10">
         <div className="text-center mb-16 max-w-2xl mx-auto">
@@ -50,7 +50,7 @@ function EnsiklopediaPage() {
           <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6 text-ink">
             Ensiklopedia Aksara
           </h1>
-          <p className="text-clay font-medium text-base md:text-lg leading-relaxed">
+          <p className="text-clay-strong font-medium text-base md:text-lg leading-relaxed">
             Jelajahi ragam tulisan kuno Nusantara yang menjadi saksi bisu peradaban bangsa kita di
             masa lalu.
           </p>
@@ -59,7 +59,7 @@ function EnsiklopediaPage() {
         {aksaras.length === 0 ? (
           <div className="text-center py-24 border-2 border-dashed border-gold/30 rounded-3xl bg-white/50">
             <p className="text-xl font-serif font-bold mb-2">Belum ada data aksara</p>
-            <p className="text-sm text-clay">Tambahkan konten di Sanity Studio (backend).</p>
+            <p className="text-sm text-clay-strong">Tambahkan konten di Sanity Studio (backend).</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -75,7 +75,10 @@ function EnsiklopediaPage() {
                     <img
                       src={urlForImage(item.visual).url()}
                       alt={item.name}
+                      width={512}
+                      height={224}
                       loading="lazy"
+                      decoding="async"
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
                     />
                   ) : (

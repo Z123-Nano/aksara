@@ -43,7 +43,7 @@ function DetailAksaraPage() {
         <Navbar />
         <div className="container mx-auto px-6 pt-40 text-center">
           <h1 className="text-3xl font-serif font-bold mb-4">Data tidak ditemukan</h1>
-          <p className="mb-8 text-clay">Aksara yang Anda cari mungkin belum didokumentasikan.</p>
+          <p className="mb-8 text-clay-strong">Aksara yang Anda cari mungkin belum didokumentasikan.</p>
           <Link
             to="/ensiklopedia"
             className="text-gold hover:text-bark font-bold tracking-widest uppercase transition-colors"
@@ -58,7 +58,7 @@ function DetailAksaraPage() {
   return (
     <main className="relative min-h-screen bg-cream text-ink selection:bg-gold selection:text-parchment">
       <Navbar />
-      <div className="absolute top-0 right-0 w-full h-full opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/batik-ramp.png')] bg-repeat mix-blend-multiply" />
+      <div className="absolute top-0 right-0 w-full h-full opacity-50 pointer-events-none bg-batik-soft" aria-hidden="true" />
 
       <div className="container mx-auto px-6 lg:px-12 pt-32 pb-20 max-w-4xl relative z-10">
         <Link
@@ -75,6 +75,10 @@ function DetailAksaraPage() {
               <img
                 src={urlForImage(data.visual).url()}
                 alt={data.name}
+                width={512}
+                height={512}
+                loading="eager"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover"
               />
             ) : (

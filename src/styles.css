@@ -72,7 +72,9 @@
   --color-sand-dark: var(--sand-dark);
   --color-parchment: var(--parchment);
   --color-bronze: var(--bronze);
+  --color-bronze-strong: var(--bronze-strong);
   --color-clay: var(--clay);
+  --color-clay-strong: var(--clay-strong);
   --color-moss: var(--moss);
   --color-moss-dark: var(--moss-dark);
 
@@ -129,7 +131,9 @@
   --sand-dark: oklch(0.87 0.03 82);
   --parchment: oklch(0.96 0.02 88);
   --bronze: oklch(0.52 0.06 65);
+  --bronze-strong: oklch(0.38 0.05 60);
   --clay: oklch(0.46 0.03 60);
+  --clay-strong: oklch(0.36 0.03 60);
   --moss: oklch(0.55 0.09 145);
   --moss-dark: oklch(0.43 0.08 145);
 }
@@ -177,5 +181,65 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+}
+
+/*
+ * Batik-like subtle heritage pattern, generated from two layered diagonal
+ * linear gradients. Replaces a previous external texture
+ * (transparenttextures.com/patterns/batik-ramp.png) that was returning 404
+ * and silently breaking every page that referenced it. Pure CSS, no network,
+ * scales with the element, and keeps the requested low-opacity watermark.
+ */
+@layer utilities {
+  .bg-batik {
+    background-color: transparent;
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(166, 130, 56, 0.18) 0,
+        rgba(166, 130, 56, 0.18) 1px,
+        transparent 1px,
+        transparent 14px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(74, 50, 30, 0.14) 0,
+        rgba(74, 50, 30, 0.14) 1px,
+        transparent 1px,
+        transparent 18px
+      );
+  }
+
+  .bg-batik-soft {
+    background-color: transparent;
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        rgba(166, 130, 56, 0.10) 0,
+        rgba(166, 130, 56, 0.10) 1px,
+        transparent 1px,
+        transparent 18px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        rgba(74, 50, 30, 0.08) 0,
+        rgba(74, 50, 30, 0.08) 1px,
+        transparent 1px,
+        transparent 22px
+      );
+  }
+
+  /* Screen-reader-only: visible to assistive tech, hidden visually. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 }

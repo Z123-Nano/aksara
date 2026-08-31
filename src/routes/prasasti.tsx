@@ -26,7 +26,7 @@ function PrasastiPage() {
   return (
     <main className="relative min-h-screen bg-cream text-ink selection:bg-gold selection:text-parchment overflow-hidden">
       <Navbar />
-      <div className="absolute top-0 right-0 w-full h-full opacity-[0.05] pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/batik-ramp.png')] bg-repeat mix-blend-multiply" />
+      <div className="absolute top-0 right-0 w-full h-full opacity-50 pointer-events-none bg-batik-soft" aria-hidden="true" />
 
       <div className="container mx-auto px-6 pt-32 pb-20 relative z-10">
         <div className="text-center mb-12">
@@ -36,7 +36,7 @@ function PrasastiPage() {
           <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6 text-ink">
             Buat Prasasti Digital
           </h1>
-          <p className="text-clay font-medium text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
+          <p className="text-clay-strong font-medium text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
             Abadikan namamu dalam bentuk{" "}
             <span className="text-bark font-bold decoration-gold underline decoration-2 underline-offset-4">
               Aksara Nusantara

@@ -82,3 +82,17 @@ export const prasastiListQueryOptions = queryOptions({
   queryFn: async (): Promise<PrasastiItem[]> =>
     (await query<PrasastiItem[]>("prasastiList")) ?? [],
 });
+
+export interface SanityCounts {
+  aksara: number;
+  prasasti: number;
+}
+
+export const countsQueryOptions = queryOptions({
+  queryKey: ["sanity", "counts"],
+  staleTime: STALE_TIME,
+  queryFn: async (): Promise<SanityCounts> => {
+    const data = (await query<SanityCounts | null>("counts")) ?? null;
+    return { aksara: data?.aksara ?? 0, prasasti: data?.prasasti ?? 0 };
+  },
+});
