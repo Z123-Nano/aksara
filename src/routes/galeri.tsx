@@ -61,7 +61,8 @@ function GaleriPage() {
   const { data: prasasti } = useSuspenseQuery(prasastiListQueryOptions);
   const { scriptType = "all" } = Route.useSearch();
 
-  const items = scriptType === "all" ? prasasti : prasasti.filter((p) => p.scriptType === scriptType);
+  const items =
+    scriptType === "all" ? prasasti : prasasti.filter((p) => p.scriptType === scriptType);
 
   return (
     <main className="relative min-h-screen bg-cream text-ink selection:bg-gold selection:text-parchment">
