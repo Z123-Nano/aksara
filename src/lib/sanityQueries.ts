@@ -1,5 +1,7 @@
 import { queryOptions } from "@tanstack/react-query";
 import { sanityFetch } from "@/lib/sanity";
+import { SANITY_QUERIES, type SanityQueryKey } from "@/lib/sanityGroq";
+import { runSanityQuery } from "@/lib/sanity.functions";
 import type { HeroData } from "@/components/Hero";
 
 const STALE_TIME = 5 * 60 * 1000;
@@ -45,17 +47,18 @@ export interface PrasastiItem {
   timestamp: string;
 }
 
-const HOME_QUERY = `{
-  "home": *[_type == "homepage"][0],
-  "aksara": *[_type == "aksara"][0...3]{ name, origin, "slug": slug.current, visual },
-  "galeri": *[_type == "galeri"][0...3]{ title, image }
-}`;
+async function query<T>(key: SanityQueryKey, params?: Record<string, string>): Promise<T> {
+  if (typeof window === "undefined") {
+    return sanityFetch<T>(SANITY_QUERIES[key], params ?? {});
+  }
+  return (await runSanityQuery({ data: { key, ...(params ? { params } : {}) } })) as T;
+}
 
 export const homeQueryOptions = queryOptions({
   queryKey: ["sanity", "home"],
   staleTime: STALE_TIME,
   queryFn: async (): Promise<HomeData> => {
-    const data = await sanityFetch<HomeData>(HOME_QUERY);
+    const data = await query<HomeData>("home");
     return { home: data?.home ?? null, aksara: data?.aksara ?? [], galeri: data?.galeri ?? [] };
   },
 });
@@ -63,34 +66,19 @@ export const homeQueryOptions = queryOptions({
 export const aksaraListQueryOptions = queryOptions({
   queryKey: ["sanity", "aksara-list"],
   staleTime: STALE_TIME,
-  queryFn: async (): Promise<AksaraItem[]> => {
-    const data = await sanityFetch<AksaraItem[]>(
-      `*[_type == "aksara"]{ name, origin, "slug": slug.current, visual }`,
-    );
-    return data ?? [];
-  },
+  queryFn: async (): Promise<AksaraItem[]> => (await query<AksaraItem[]>("aksaraList")) ?? [],
 });
 
 export const aksaraDetailQueryOptions = (slug: string) =>
   queryOptions({
     queryKey: ["sanity", "aksara", slug],
     staleTime: STALE_TIME,
-    queryFn: () =>
-      sanityFetch<AksaraDetail | null>(
-        `*[_type == "aksara" && slug.current == $slug][0]{
-        name, origin, visual, description, content, "audio": pronunciation.asset->url
-      }`,
-        { slug },
-      ),
+    queryFn: () => query<AksaraDetail | null>("aksaraDetail", { slug }),
   });
 
 export const prasastiListQueryOptions = queryOptions({
   queryKey: ["sanity", "prasasti-list"],
   staleTime: STALE_TIME,
-  queryFn: async (): Promise<PrasastiItem[]> => {
-    const data = await sanityFetch<PrasastiItem[]>(
-      `*[_type == "prasasti"] { name, message, scriptType, txHash, txUrl, timestamp } | order(timestamp desc)`,
-    );
-    return data ?? [];
-  },
+  queryFn: async (): Promise<PrasastiItem[]> =>
+    (await query<PrasastiItem[]>("prasastiList")) ?? [],
 });
