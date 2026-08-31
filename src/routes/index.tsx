@@ -1,34 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Hero, { type HeroData } from "@/components/Hero";
-import { sanityFetch, urlForImage } from "@/lib/sanity";
-
-interface AksaraItem {
-  name: string;
-  origin: string;
-  slug: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  visual: any;
-}
-
-interface GaleriItem {
-  title: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  image: any;
-}
-
-interface HomeData {
-  home: (HeroData & { aboutTitle?: string; aboutContent?: string }) | null;
-  aksara: AksaraItem[];
-  galeri: GaleriItem[];
-}
-
-const HOME_QUERY = `{
-  "home": *[_type == "homepage"][0],
-  "aksara": *[_type == "aksara"][0...3]{ name, origin, "slug": slug.current, visual },
-  "galeri": *[_type == "galeri"][0...3]{ title, image }
-}`;
+import Hero from "@/components/Hero";
+import PageSkeleton from "@/components/PageSkeleton";
+import { urlForImage } from "@/lib/sanity";
+import { homeQueryOptions } from "@/lib/sanityQueries";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -46,15 +23,16 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
-  loader: async (): Promise<HomeData> => {
-    const data = await sanityFetch<HomeData>(HOME_QUERY);
-    return { home: data?.home ?? null, aksara: data?.aksara ?? [], galeri: data?.galeri ?? [] };
-  },
+  loader: ({ context }) => context.queryClient.ensureQueryData(homeQueryOptions),
+  pendingMs: 100,
+  pendingComponent: () => <PageSkeleton cards={3} />,
   component: Index,
 });
 
 function Index() {
-  const { home, aksara, galeri } = Route.useLoaderData();
+  const {
+    data: { home, aksara, galeri },
+  } = useSuspenseQuery(homeQueryOptions);
 
   return (
     <main className="bg-white selection:bg-gold selection:text-ink">
